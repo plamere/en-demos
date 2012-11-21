@@ -1,0 +1,3 @@
+#s3cmd sync --dry-run --acl-public . s3://static.echonest.com/BohemianRhapsichord/
+#s3cmd sync --acl-public TR* faq.html images-10fps index.html jremix.js js styles.css  s3://static.echonest.com/InfiniteGangnamStyle/
+s3cmd sync --acl-public *.jpg xmas.html xmas_styles.css  s3://static.echonest.com/demo/

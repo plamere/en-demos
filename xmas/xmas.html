@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>The Christmas Playlist</title>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js"></script>
+    <link type="text/css" href="xmas_styles.css" rel="stylesheet" />
+  </head>
+
+<body>
+    <div id='content'>
+    <h1 id='title'> The Christmas Playlist </h1>
+    <div class ='info'>
+        This web app creates Christmas Playlists for Spotify using the Echo Nest Playlist API.  For more
+        information about how to create Christmas playlists see this post: <a href="">Creating Christmas Playlists
+        with the Echo Nest API </a>.
+    </div>
+
+    <br>
+    <div id='seed'>
+        <span class='box'> Seed artist:
+            <input title="Artist" type="text"  size=34 id="artist" 
+            onkeydown="if (event.keyCode == 13) newArtist()" name="artist" value='Katy Perry'/>
+        </span>
+        <button value="go" id="go" name="go"  onclick="newArtist()"> Go </button>
+    </div>
+
+    <div id="info"> </div>
+    <div id="all_results">
+        <div id='tracks'>
+            <div id="results"> </div>
+        </div>
+    </div>
+    <div id='footer'> 
+        Powered by <a href="http://the.echonest.com">The Echo Nest</a> and <a href="http://spotify.com">Spotify</a>. 
+    </div>
+    </div>
+</body>
+
+<script type="text/javascript">
+
+jQuery.ajaxSettings.traditional = true; 
+var host = 'http://developer.echonest.com/'
+
+var embed = '<iframe src="https://embed.spotify.com/?uri=spotify:trackset:PREFEREDTITLE:TRACKS" style="width:640px; height:520px;" frameborder="0" allowtransparency="true"></iframe>';
+
+
+function fetchArtistPlaylist(artist,  wandering, variety) {
+    var url = host + 'api/v4/playlist/static?api_key=FHPFXUKUGHZWWUXPR&callback=?';
+
+    $("#all_results").hide();
+    info("Creating the playlist ...");
+    $.getJSON(url, { 'artist': artist, 'format':'jsonp', 
+            'bucket': [ 'id:spotify-WW', 'tracks'], 'limit' : true,
+            'song_type': 'christmas',
+            'variety' : 1,
+            'results': 12, 'type':'artist-radio',  }, 
+            function(data) {
+                info("");
+                $("#results").empty();
+                if (! ('songs' in data.response)) {
+                    info("Can't find that artist");
+                } else {
+                    $("#all_results").show();
+                    var tracks = "";
+                    for (var i = 0; i < data.response.songs.length; i++) {
+                        var song = data.response.songs[i];
+                        var tid = song.tracks[0].foreign_id.replace('spotify-WW:track:', '');
+                        tracks = tracks + tid + ',';
+                    }
+                    var tembed = embed.replace('TRACKS', tracks);
+                    tembed = tembed.replace('PREFEREDTITLE', artist + ' playlist');
+                    var li = $("<span>").html(tembed);
+                    $("#results").append(li);
+                }
+            });
+}
+
+
+function newArtist() {
+    var artist = $("#artist").val();
+    fetchArtistPlaylist(artist, false, .2);
+}
+
+function info(txt) {
+    $("#info").text(txt);
+}
+
+$(document).ready(function() {
+    $("#all_results").hide();
+});
+</script>
+</html>
