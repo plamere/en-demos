@@ -1,0 +1,69 @@
+body {
+    margin:20px;
+    font-family: Verdana, Helvetica, "Lucida Grande", Arial, sans-serif;
+    font-size:12px;
+    margin:0 auto;
+    background-color: #ffffff;
+    color:rgb(75,85,11);
+    width:900px;
+}
+
+
+#content {
+    text-align:center;
+}
+
+#seed {
+    text-align:center;
+}
+
+
+h1 {
+    font-size:28px;
+    font-weight:bold;
+    text-align:center;
+}
+
+a {
+    color:#444;
+}
+
+#content a {
+    font-weight:bold;
+}
+
+a:link {text-decoration: none; }
+
+h2 {
+    font-size:18px;
+    text-align:center;
+}
+
+
+#all_results {
+    visible:hidden;
+}
+
+
+.box {
+    margin-right:10px;
+    margin-bottom:40px;
+    white-space: nowrap;
+    font-size:15px;
+}
+
+#info {
+    margin:20px;
+    font-size:18px;
+    text-align:center;
+}
+
+.title {
+}
+
+#footer {
+    margin-top:10px;
+    padding-bottom:10px;
+    text-align:center;
+    font-size:12px;
+}
