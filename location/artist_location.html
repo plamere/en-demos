@@ -1,0 +1,117 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
+<title> Artist Location Demonstration</title>
+</head>
+
+<body>
+<div id="wrap" class="navbar navbar-inverse">
+  <div class="navbar-inner">
+    <div class="container">
+      <a id='show-search' class="brand">Aritst Location Demo</a>
+      <div class="nav-collapse collapse">
+        <ul class="nav">
+          <li class="active"><a id='show-main'  href="index.html">Main</a></li>
+          <li><a id='show-help' href="http://developer.echonest.com">The Echo Nest</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="hero" class="hero-unit">
+  <div class="container">
+    <h1> Artist Location Demo</h1>
+        <h4> Find popular artists from a particular locale</h4>
+        <br>
+        <p>
+
+      <div class="container lead span9">
+            Enter artist city, state and/or country:
+            <input id='locale-input' type="text" class="input-block-level" placeholder="Chicago, IL, US">
+
+            <small>
+                You can qualify locations with <b>city:</b> <b>region:</b> and <b>country:</b>.  For example 
+                <b>city:washington</b> will find artists from cities called Washington.
+            </small>
+
+      </div>
+      <div class="container lead span12">
+            <ul id='results'> </ul>
+      </div>
+
+      <div class="container span8">
+        <small>
+        Powered by <a href="http://echonest.com">The Echo Nest</a>. 
+        </small>
+      </div>
+  </div>
+</div>
+</body>
+
+<script type="text/javascript">
+jQuery.ajaxSettings.traditional = true; 
+var endpoint = 'http://developer.echonest.com/api/v4/'
+var api_key = 'FHPFXUKUGHZWWUXPR';
+
+function info(s) {
+}
+
+
+function fetchArtistsByLocation(locale) {
+    var url = endpoint + 'artist/search';
+
+    $("#all_results").hide();
+
+    $.getJSON(url, 
+        { 
+            'api_key' : api_key,
+            'artist_location': locale, 
+            'results' : 25,
+            'bucket': [ 'artist_location'],  
+        },
+        function(data) {
+            $("#results").empty();
+
+            if (data.response.status.code == 0) {
+                var artists = data.response.artists;
+                if (artists.length > 0) {
+                    for (var i = 0; i < artists.length; i++) {
+                        var artist = artists[i];
+                        var li = $("<li>");
+                        if ('artist_location' in artist) {
+                            li.text(artist.name + " from " + artist.artist_location.location);
+                            $("#results").append(li);
+                        } else {
+                            console.log(artist);
+                        }
+                    }
+                } else {
+                        $("#results").text("No results");
+                }
+            } else {
+                alert("Trouble getting artists: " + data.response.status.message);
+            }
+        })
+        .error( 
+            function(data) {
+                alert("query syntax error. Use 'city:', 'region:' and 'country:' qualifiers only");
+            }
+        );
+}
+
+$(document).ready(function() {
+    $("#locale-input").keyup( 
+        function(event) {
+            if (event.keyCode == 13) {
+                var locale = $("#locale-input").val();
+                fetchArtistsByLocation(locale);
+            }
+        }
+    );
+});
+
+</script>
+</html>
