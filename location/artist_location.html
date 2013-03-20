@@ -34,7 +34,7 @@
 
             <small>
                 You can qualify locations with <b>city:</b> <b>region:</b> and <b>country:</b>.  For example 
-                <b>city:washington</b> will find artists from cities called Washington.
+                <b>city:washington</b> will find artists from cities called Washington. Find artists from the country 
             </small>
 
       </div>
@@ -44,7 +44,8 @@
 
       <div class="container span8">
         <small>
-        Powered by <a href="http://echonest.com">The Echo Nest</a>. 
+        Powered by <a href="http://echonest.com">The Echo Nest</a>.  See the <a
+        href='https://github.com/plamere/en-demos/blob/master/location/artist_location.html'>source</a>.
         </small>
       </div>
   </div>
@@ -56,24 +57,19 @@ jQuery.ajaxSettings.traditional = true;
 var endpoint = 'http://developer.echonest.com/api/v4/'
 var api_key = 'FHPFXUKUGHZWWUXPR';
 
-function info(s) {
-}
-
-
 function fetchArtistsByLocation(locale) {
     var url = endpoint + 'artist/search';
-
-    $("#all_results").hide();
-
+    $("#results").empty();
     $.getJSON(url, 
         { 
             'api_key' : api_key,
             'artist_location': locale, 
             'results' : 25,
             'bucket': [ 'artist_location'],  
+            'sort': 'hotttnesss-desc'
         },
+
         function(data) {
-            $("#results").empty();
 
             if (data.response.status.code == 0) {
                 var artists = data.response.artists;

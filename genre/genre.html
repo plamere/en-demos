@@ -34,6 +34,7 @@
     </div>
     <div id='footer'> 
         Powered by <a href="http://the.echonest.com">The Echo Nest</a> and <a href="http://spotify.com">Spotify</a>. 
+        <a href="https://github.com/plamere/en-demos/blob/master/genre/genre.html">Get the source</a>
     </div>
     </div>
 </body>
@@ -56,7 +57,6 @@ function fetchGenrePlaylist(genre,  wandering, variety) {
             'bucket': [ 'id:spotify-WW', 'tracks'], 'limit' : true,
             'variety' : variety, 
             'dmca' : true,
-            'sort' : 'song_hotttnesss-desc',
             'results': 12, 'type':'genre-radio',  }, 
 
             function(data) {

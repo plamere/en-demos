@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>The Comedy Playlister</title>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js"></script>
+    <link type="text/css" href="comedy_styles.css" rel="stylesheet" />
+  </head>
+
+<body>
+    <div id='content'>
+    <h1 id='title'> The Comedy Playlister</h1>
+    <div class ='info'>
+        This web app creates playlists of comedy tracks for Spotify using the Echo Nest Playlist API to find tracks by comedy
+        artists that have high 'speechiness'.  For more information about how to create comedy playlists see this 
+        post: <a href="http://MusicMachinery.com">Creating Comedy Playlists with the Echo Nest API </a>.
+    </div>
+
+    <br>
+    <div id='seed'>
+        <button value="go" id="go" name="go"  onclick="go()"> Generate Comedy Playlist </button>
+    </div>
+
+    <div id="info"> </div>
+    <div id="all_results">
+        <div id='tracks'>
+            <div id="results"> </div>
+        </div>
+    </div>
+    <div id='footer'> 
+        Powered by <a href="http://the.echonest.com">The Echo Nest</a> and <a href="http://spotify.com">Spotify</a>. 
+        Image (CC) by <a href="http://www.flickr.com/photos/simonscott/1269955953/sizes/l/in/photostream/">Simon Scott</a>.
+    </div>
+    </div>
+</body>
+
+<script type="text/javascript">
+
+jQuery.ajaxSettings.traditional = true; 
+var host = 'http://developer.echonest.com/'
+
+var embed = '<iframe src="https://embed.spotify.com/?uri=spotify:trackset:PREFEREDTITLE:TRACKS" style="width:640px; height:520px;" frameborder="0" allowtransparency="true"></iframe>';
+
+
+function fetchComedyPlaylist() {
+    var url = host + 'api/v4/playlist/static';
+
+    $("#all_results").hide();
+    var args = { 
+            'format':'json', 
+            'bucket': [ 'id:spotify-WW', 'tracks'], 
+            'limit' : true,
+            'api_key': 'FHPFXUKUGHZWWUXPR',
+            'type' : 'artist-description',
+            'results': 12, 
+            'description' : 'comedy',
+            'min_speechiness' : .8
+    }; 
+
+    info("Creating the playlist ...");
+    $.getJSON(url, args,
+            function(data) {
+                info("");
+                $("#results").empty();
+                if (! ('songs' in data.response)) {
+                    info("Can't find anything funny");
+                } else {
+                    $("#all_results").show();
+                    var tracks = "";
+                    for (var i = 0; i < data.response.songs.length; i++) {
+                        var song = data.response.songs[i];
+                        var tid = song.tracks[0].foreign_id.replace('spotify-WW:track:', '');
+                        tracks = tracks + tid + ',';
+                    }
+                    var tembed = embed.replace('TRACKS', tracks);
+                    tembed = tembed.replace('PREFEREDTITLE', ' Comedy playlist');
+                    var li = $("<span>").html(tembed);
+                    $("#results").append(li);
+                }
+            },
+
+            function() {
+                info("Trouble getting a playlist");
+            }
+        );
+}
+
+
+function go() {
+    fetchComedyPlaylist();
+}
+
+function info(txt) {
+    $("#info").text(txt);
+}
+
+$(document).ready(function() {
+    $.ajaxSetup({ cache: false });
+    $("#all_results").hide();
+});
+</script>
+</html>
