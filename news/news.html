@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>News Tester</title>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css" rel="stylesheet">
+    <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
+    <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-responsive.min.css" rel="stylesheet">
+  </head>
+
+<body>
+
+<div id="wrap" class="navbar navbar-inverse">
+  <div class="navbar-inner">
+    <div class="container">
+        <a id='show-search' class="brand">Recent Artist News</a>
+        <ul class="nav">
+          <li class="nav-choice active"><a id='show-main'>Main</a></li>
+          <li class="nav-choice"><a href="http://developer.echonest.com/docs/v4/artist.html#news">News API</a></li>
+          <li class="nav-choice"><a href="http://static.echonest.com/labs">Labs</a></li>
+          <li class="nav-choice"><a href="http://static.echonest.com/labs/demo.html">Demos</a></li>
+          <li class="nav-choice"><a href="http://developer.echonest.com">developer.echonest.com</a></li>
+        </ul>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+    <div class="hero-unit">
+        <h1> Artist News </h1>
+        <p> A demonstration of how to use The Echo Nest API to get recent news articles for any artist</p>
+            <div>
+                <input id="artist" type="text" placeholder="Enter artist name ..." </input>
+                <button id="go" class="btn btn-primary"> Get News </button>
+            </div>
+            <div> <input id='relevant' type="checkbox"> Only highly relevant news </input> </div>
+            <div id="info" class=""> </div>
+    </div>
+    <div id="results"> </div>
+</div>
+
+<script type="text/javascript">
+
+jQuery.ajaxSettings.traditional = true; 
+
+function fetchNews(artist, highRelevance) {
+    var url = 'http://developer.echonest.com/api/v4/artist/news';
+
+    $("#results").hide();
+    var args = { 
+            format:'json', 
+            api_key: 'FHPFXUKUGHZWWUXPR',
+            name: artist,
+            results: 100, 
+            high_relevance: highRelevance, 
+    }; 
+
+    info("Fetching the news for " + artist);
+    $.getJSON(url, args,
+            function(data) {
+                $("#results").empty();
+                if (! ('news' in data.response)) {
+                    error("Can't find any news for " + artist);
+                } else {
+                    $("#results").show();
+                    var titles = {}
+                    $.each(data.response.news, function(index, news) {
+                        if (! (news.name in titles)) {
+                            var div = formatNews(news);
+                            $("#results").append(div);
+                            titles[news.name] = 1;
+                        }
+                    });
+                    info("Showing " + data.response.news.length + " of " + data.response.total + " news items for " + artist);
+                }
+            },
+            function() {
+                error("Trouble getting news for " + artist);
+            }
+        );
+}
+
+
+function formatNews(news) {
+    var div = $("<div class='news well'>");
+    div.append($("<h4>").html(news.name));
+
+    var date = "";
+    if ('date_posted' in news) {
+        date = "<i>" + news.date_posted.substring(0,10) + '</i> ';
+    }
+
+    div.append($("<p>").html(date + news.summary + " ..." ));
+    var link = $("<a>");
+    link.attr('href', news.url);
+    link.text("full story on " + getSource(news.url));
+    div.append(link);
+    return div;
+}
+
+
+function go() {
+    var artist = $.trim($("#artist").val());
+    if (artist.length  > 0) {
+        var relevance = $("#relevant").is(':checked');
+        fetchNews(artist, relevance);
+    } else {
+        info("Type an artist name first");
+    }
+}
+
+function getSource(url) {
+	var path = url.split('/');
+	return path[2]	;
+}
+
+function info(s) {
+    $("#info").removeClass();
+    if (s.length > 0) {
+        $("#info").addClass("alert alert-info");
+    }
+    $("#info").text(s);
+}
+
+function error(s) {
+    $("#info").removeClass();
+    if (s.length > 0) {
+        $("#info").addClass("alert alert-error");
+    }
+    $("#info").text(s);
+}
+    
+
+
+$(document).ready(function() {
+    $("#all_results").hide();
+    $("#go").click(go);
+    $("#artist").change(go);
+});
+
+</script>
+</body>
+</html>
