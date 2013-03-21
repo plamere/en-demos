@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Artist Reviews</title>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css" rel="stylesheet">
+    <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
+    <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-responsive.min.css" rel="stylesheet">
+  </head>
+
+<body>
+
+<div id="wrap" class="navbar navbar-inverse">
+  <div class="navbar-inner">
+    <div class="container">
+        <a id='show-search' class="brand">Recent Artist Reviews</a>
+        <ul class="nav">
+          <li class="nav-choice active"><a id='show-main'>Main</a></li>
+          <li class="nav-choice"><a href="http://developer.echonest.com/docs/v4/artist.html#reviews">Reviews API</a></li>
+          <li class="nav-choice"><a href="http://static.echonest.com/labs">Labs</a></li>
+          <li class="nav-choice"><a href="http://static.echonest.com/labs/demo.html">Demos</a></li>
+          <li class="nav-choice"><a href="http://developer.echonest.com">developer.echonest.com</a></li>
+        </ul>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+    <div class="hero-unit">
+        <h1> Artist Reviews </h1>
+        <p> A demonstration of how to use The Echo Nest API to get recent reviews for any artist</p>
+            <div>
+                <input id="artist" type="text" placeholder="Enter artist name ..." </input>
+                <button id="go" class="btn btn-primary"> Get Reviews </button>
+            </div>
+            <div id="info" class=""> </div>
+    </div>
+    <div id="results"> </div>
+</div>
+
+<script type="text/javascript">
+
+jQuery.ajaxSettings.traditional = true; 
+
+function fetchNews(artist) {
+    var url = 'http://developer.echonest.com/api/v4/artist/reviews';
+
+    $("#results").hide();
+    var args = { 
+            format:'json', 
+            api_key: 'FHPFXUKUGHZWWUXPR',
+            name: artist,
+            results: 100, 
+    }; 
+
+    info("Fetching reviews for " + artist);
+    $.getJSON(url, args,
+            function(data) {
+                console.log(data);
+                $("#results").empty();
+                if (! ('reviews' in data.response)) {
+                    error("Can't find any reviews for " + artist);
+                } else {
+                    $("#results").show();
+                    var titles = {}
+                    $.each(data.response.reviews, function(index, item) {
+                        if (! (item.name in titles)) {
+                            var div = format(item);
+                            if (div) {
+                                $("#results").append(div);
+                            }
+                            titles[item.name] = 1;
+                        }
+                    });
+                    info("Showing " + data.response.reviews.length + " of " + data.response.total + " reviews for " + artist);
+                }
+            },
+            function() {
+                error("Trouble getting reviews for " + artist);
+            }
+        );
+}
+
+var blackList = ['www.crawdaddy.com'];
+
+function format(item) {
+    var div = $("<div class='well clearfix'>");
+    var source = getSource(item.url);
+
+    if (blackList.indexOf(source) != -1) {
+        return null;
+    }
+
+    div.append($("<h4>").html(item.name));
+
+    if (item.image_url) {
+        div.append($("<img style='float:left;margin-right:10px;max-width:150px'>").attr('src', item.image_url));
+    }
+
+    var date = null;
+    if ('date_posted' in item) {
+        date = item.date_posted;
+    } else if ('date_found' in item) {
+        date = item.date_found;
+    }
+    if (date) {
+        date = "<i>" + date.substring(0,10) + '</i> ';
+    }
+
+    div.append($("<p>").html(date + item.summary + " ..." ));
+    var link = $("<a>");
+    link.attr('href', item.url);
+    link.text("full review on " + source);
+    div.append(link);
+    return div;
+}
+
+
+function go() {
+    var artist = $.trim($("#artist").val());
+    if (artist.length  > 0) {
+        var relevance = $("#relevant").is(':checked');
+        fetchNews(artist, relevance);
+    } else {
+        info("Type an artist name first");
+    }
+}
+
+function getSource(url) {
+	var path = url.split('/');
+	return path[2]	;
+}
+
+function info(s) {
+    $("#info").removeClass();
+    if (s.length > 0) {
+        $("#info").addClass("alert alert-info");
+    }
+    $("#info").text(s);
+}
+
+function error(s) {
+    $("#info").removeClass();
+    if (s.length > 0) {
+        $("#info").addClass("alert alert-error");
+    }
+    $("#info").text(s);
+}
+    
+
+
+$(document).ready(function() {
+    $("#all_results").hide();
+    $("#go").click(go);
+    $("#artist").change(go);
+});
+
+</script>
+</body>
+</html>
