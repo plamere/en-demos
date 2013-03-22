@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Basic Playlisting Demo</title>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css" rel="stylesheet">
+    <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
+    <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-responsive.min.css" rel="stylesheet">
+  </head>
+
+<body>
+
+<div id="wrap" class="navbar navbar-inverse">
+  <div class="navbar-inner">
+    <div class="container">
+        <a id='show-search' class="brand">Basic Playlisting</a>
+        <ul class="nav">
+          <li class="nav-choice active"><a id='show-main'>Main</a></li>
+          <li class="nav-choice"><a href="http://developer.echonest.com/docs/v4/playlist.html#basic">Basic Playlisting API</a></li>
+          <li class="nav-choice"><a href="http://static.echonest.com/labs">Labs</a></li>
+          <li class="nav-choice"><a href="http://static.echonest.com/labs/demo.html">Demos</a></li>
+          <li class="nav-choice"><a href="http://developer.echonest.com">developer.echonest.com</a></li>
+        </ul>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+    <div class="hero-unit span5">
+        <h1> Basic Playlisting</h1>
+        <p> A demonstration of how to use The Echo Nest Basic Playlisting API to create a Spotify playlist.  </p>
+        <div>
+            <input id="artist" type="text" placeholder="Enter artist name ..." </input>
+            <button id="go" class="btn btn-primary"> Create Playlist </button>
+        </div>
+        <div id="info" class=""> </div>
+    </div>
+</div>
+<div id="results"> </div>
+
+<script type="text/javascript">
+
+var embed = '<iframe src="https://embed.spotify.com/?uri=spotify:trackset:PREFEREDTITLE:TRACKS" style="width:640px; height:520px;" frameborder="0" allowtransparency="true"></iframe>';
+
+
+jQuery.ajaxSettings.traditional = true; 
+
+
+function fetchBasicPlaylist(artist) {
+    var url = 'http://developer.echonest.com/api/v4/playlist/basic';
+    $("#all-results").hide();
+    info("Creating the playlist ...");
+
+    var args = {
+        'artist': artist, 
+        'api_key' : 'FHPFXUKUGHZWWUXPR',
+        'bucket': [ 'id:spotify-WW', 'tracks'], 'limit' : true,
+        'results': 12, 
+        'type':'artist-radio'
+    };
+
+    $.getJSON(url, args,
+        function(data) {
+            info("");
+            $("#results").empty();
+            if (! ('songs' in data.response)) {
+                error("Can't find that artist");
+            } else {
+                var tracks = "";
+                for (var i = 0; i < data.response.songs.length; i++) {
+                    var song = data.response.songs[i];
+                    var tid = song.tracks[0].foreign_id.replace('spotify-WW:track:', '');
+                    tracks = tracks + tid + ',';
+                }
+                    var tembed = embed.replace('TRACKS', tracks);
+                    tembed = tembed.replace('PREFEREDTITLE', artist + ' playlist');
+                    $("#results").html(tembed);
+                    $("#all-results").show();
+                }
+            },
+
+            function() {
+                error("Trouble getting blog posts for " + artist);
+            }
+        );
+}
+
+
+function go() {
+    var artist = $.trim($("#artist").val());
+    if (artist.length  > 0) {
+        var relevance = $("#relevant").is(':checked');
+        fetchBasicPlaylist(artist);
+    } else {
+        info("Type an artist name first");
+    }
+}
+
+function info(s) {
+    $("#info").removeClass();
+    if (s.length > 0) {
+        $("#info").addClass("alert alert-info");
+    }
+    $("#info").text(s);
+}
+
+function error(s) {
+    $("#info").removeClass();
+    if (s.length > 0) {
+        $("#info").addClass("alert alert-error");
+    }
+    $("#info").text(s);
+}
+    
+
+
+$(document).ready(function() {
+    $("#all-results").hide();
+    $("#go").click(go);
+    $("#artist").change(go);
+});
+
+</script>
+</body>
+</html>
