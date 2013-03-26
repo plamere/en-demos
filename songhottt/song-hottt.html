@@ -262,7 +262,6 @@ $(document).ready(function() {
         var lastTid = null;
 
         R.player.on("change:playingTrack", function(track) {
-            console.log("np ", track.attributes.key);
             var tid = track.attributes.key;
 
             if (lastTid) {

@@ -26,14 +26,11 @@ function getRdioPlayer(readyCallback) {
 
         for (var i = 0; i < curSongs.length; i++) {
             var csong = curSongs[i];
-            console.log('   ', csong.id, song.id);
             if (csong.id == song.id) {
                 curSongIndex = i + 1;
-                console.log('YEP   ', curSongs.length, i, csong.id, song.id);
                 break;
             }
         }
-        console.log('psaai', curSongs.length, song, curSongIndex);
     }
 
     function playNextSong() {
@@ -62,7 +59,6 @@ function getRdioPlayer(readyCallback) {
     }
 
     function addSongs(songs, playNow) {
-        console.log('addSongs', songs);
         curSongIndex = 0;
         curSongs = songs;
 
@@ -87,7 +83,6 @@ function getRdioPlayer(readyCallback) {
 
 
     R.ready(function() {
-        console.log('rdio ready');
         R.player.on("change:playingTrack", function(track) {
             if (track) {
                 var image = track.attributes.icon;
