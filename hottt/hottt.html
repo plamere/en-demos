@@ -51,7 +51,7 @@
         <a id='show-search' class="brand">Hotttest Artists</a>
         <ul class="nav">
           <li class="nav-choice active"><a id='show-main'>Main</a></li>
-          <li class="nav-choice"><a href="https://github.com/plamere/en-demos/blob/master/hottt/hottt.html">The Source</a></li>
+          <li class="nav-choice"><a href="https://github.com/plamere/en-demos/blob/master/hottt/">The Source</a></li>
           <li class="nav-choice"><a href="http://developer.echonest.com/docs/v4/artist.html#top-hottt">Hotttnesss API</a></li>
         </ul>
         <ul class="nav pull-right">
@@ -157,11 +157,6 @@ function getBio(item) {
 
 function format(index, item) {
     var div = $("<div class='well clearfix'>");
-    var play = $("<button>")
-        .addClass("btn btn-primary btn-mini artist-play-button")
-        .append( 
-            $("<i>") .addClass("icon-white icon-play")
-            .append("Play this artist"));
     var play = $("<span class='artist-play-button'>").html(
         '<button class="btn btn-primary btn-mini"><i class="icon-white icon-play"></i> Play this artist</button>');
     var title = $("<h4>").html((index + 1) + " - " + item.name);
@@ -216,6 +211,7 @@ function fetchHotttestArtists(genre, start) {
         } else {
             $("#results").append( $("<h2>").html("Hotttest overall" + " artists"));
         }
+        fetchSongsForGenre(genre, .4);
     } else {
         results = 90;
     }
@@ -246,7 +242,7 @@ function fetchHotttestArtists(genre, start) {
                 fetchHotttestArtists(genre, 10);
             } else {
                 var roundedHotttnesssFloor = Math.round(hotttnesssFloor * 100 + 1) / 100;
-                fetchSongsForGenre(genre, roundedHotttnesssFloor);
+                // fetchSongsForGenre(genre, roundedHotttnesssFloor);
             }
         },
 
@@ -302,6 +298,7 @@ function fetchSongsForGenre(genre, hotttnesssFloor) {
         variety:1,
         artist_min_hotttnesss: hotttnesssFloor,
         sort: 'song_hotttnesss-desc',
+        // sort: 'artist_hotttnesss-desc',
         results: 100
     };
 
@@ -309,10 +306,7 @@ function fetchSongsForGenre(genre, hotttnesssFloor) {
         function(data) {
             var songs = data.response.songs
             $.each(songs, function(i, song) {
-                if (song.artist_hotttnesss < hotttnesssFloor) {
-                    console.log('below floor', hotttnesssFloor, song.artist_hotttnesss, song.artist_name, song);
-                }
-                console.log('s h', song.song_hotttnesss);
+                // console.log('s h', song.song_hotttnesss, song.artist_hotttnesss);
             });
             player.addSongs(songs, true);
         },
@@ -369,7 +363,7 @@ function setUrl(genre) {
     if (genre) {
         history.replaceState({}, document.title, "?genre="  + genre);
     } else {
-        history.replaceState({}, document.title, "");
+        history.replaceState({}, document.title, "?genre=all");
     }
 }
 
@@ -392,13 +386,12 @@ function processParams() {
         curGenre = genre;
         $("#genre").val(genre);
         $("#genre").trigger("liszt:updated");
-        fetchHotttestArtists(genre, 0);
-    } else {
-        fetchHotttestArtists(null, 0);
     }
+    go();
 }
 
 $(document).ready(function() {
+    $.ajaxSetup({ cache: false });
     $("#all_results").hide();
     $("#genre").change(function() {
         curGenre = $("#genre").val();

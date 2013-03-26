@@ -13,12 +13,27 @@ function getRdioPlayer(readyCallback) {
 
     function playSong(song) {
         var rdioID = getRdioID(song);
-        currentSong = song;
         R.player.play({
             source: rdioID
         });
         $("#rp-song-title").text(song.title);
         $("#rp-artist-name").text(song.artist_name);
+    }
+
+
+    function playSongAndAdjustIndex(song) {
+        playSong(song);
+
+        for (var i = 0; i < curSongs.length; i++) {
+            var csong = curSongs[i];
+            console.log('   ', csong.id, song.id);
+            if (csong.id == song.id) {
+                curSongIndex = i + 1;
+                console.log('YEP   ', curSongs.length, i, csong.id, song.id);
+                break;
+            }
+        }
+        console.log('psaai', curSongs.length, song, curSongIndex);
     }
 
     function playNextSong() {
@@ -47,6 +62,7 @@ function getRdioPlayer(readyCallback) {
     }
 
     function addSongs(songs, playNow) {
+        console.log('addSongs', songs);
         if (curSongs != songs) {
             curSongIndex = 0;
             curSongs = songs;
@@ -57,6 +73,17 @@ function getRdioPlayer(readyCallback) {
             autoStop = true;
             playNextSong();
         }
+    }
+
+    function getTrackInfo(trackIDs, successCallback, errorCallback) {
+        R.request( {
+            method:'get',
+            content: {
+                keys: $.join(trackIDs, ',')
+            },
+            success: successCallback,
+            error: errorCallback
+        });
     }
 
 
@@ -104,7 +131,8 @@ function getRdioPlayer(readyCallback) {
     });
 
     var methods = {   
-        addSongs : addSongs
+        addSongs : addSongs,
+        playSong: playSongAndAdjustIndex
     }
 
     return methods;

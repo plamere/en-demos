@@ -1,0 +1,1 @@
+s3cmd sync --acl-public --dry-run */*.jpg */*.png */*.html */*.js */*.css  s3://static.echonest.com/demo/

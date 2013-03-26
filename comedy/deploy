@@ -1,1 +1,0 @@
-s3cmd sync --acl-public *.jpg *.html *.css  s3://static.echonest.com/demo/

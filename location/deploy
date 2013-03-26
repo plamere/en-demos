@@ -1,1 +1,0 @@
-s3cmd sync --acl-public *.jpg artist_location.html  bootstrap s3://static.echonest.com/demo/
