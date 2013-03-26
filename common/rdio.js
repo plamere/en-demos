@@ -63,10 +63,9 @@ function getRdioPlayer(readyCallback) {
 
     function addSongs(songs, playNow) {
         console.log('addSongs', songs);
-        if (curSongs != songs) {
-            curSongIndex = 0;
-            curSongs = songs;
-        }
+        curSongIndex = 0;
+        curSongs = songs;
+
         if (playNow) {
             playNextSong();
         } else if (! (R.player.playState() == R.player.PLAYSTATE_PLAYING) && (curSongs.length > 0)) {
