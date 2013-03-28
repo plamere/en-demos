@@ -136,6 +136,7 @@ function error(s) {
 
 
 $(document).ready(function() {
+    $.ajaxSetup({ cache: false });
     $("#all_results").hide();
     $("#go").click(go);
     $("#artist").change(go);

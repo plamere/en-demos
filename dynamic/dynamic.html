@@ -146,6 +146,7 @@ function playSong(song) {
     });
     $("#rp-song-title").text(song.title);
     $("#rp-artist-name").text(song.artist_name);
+    document.title = song.artist_name;
 }
 
 function playNextSong() {
