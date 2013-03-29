@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Taste Profile Viewer</title>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css" rel="stylesheet">
+    <script src="jquery.cookie.js" type="text/javascript" charset="utf-8"></script>
+    <script src="underscore-min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="echonest.js" type="text/javascript" charset="utf-8"></script>
+    <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
+    <style>
+        #taste-profile {
+            display:none;
+        }
+        #refresh{
+            margin-top: -8px;
+        }
+
+    </style>
+  </head>
+
+<body>
+
+<div id="wrap" class="navbar navbar-inverse">
+  <div class="navbar-inner">
+    <div class="container">
+        <a id='show-search' class="brand">Taste Profile Viewer</a>
+        <ul class="nav">
+          <li class="nav-choice active"><a id='show-main'>Main</a></li>
+          <li class="nav-choice"><a href="https://github.com/plamere/en-demos/blob/master/tp/">The Source</a></li>
+          <li class="nav-choice"><a href="http://developer.echonest.com/docs/v4/catalog.html">Taste Profile API</a></li>
+        </ul>
+        <ul class="nav pull-right">
+          <li class="nav-choice"><a href="http://static.echonest.com/labs">Labs</a></li>
+          <li class="nav-choice"><a href="http://static.echonest.com/labs/demo.html">Demos</a></li>
+          <li class="nav-choice"><a href="http://developer.echonest.com">developer.echonest.com</a></li>
+        </ul>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+    <div id="the-form" class="span12 well">
+        <h1> Taste Profile Viewer</h1>
+        <div>
+            <input id="catalog-id" type="text" placeholder="Enter catalog ID" </input>
+            <button id="refresh" class="btn btn-primary"> Refresh </button>
+        </div>
+    </div>
+</div>
+
+  <div class="container ">
+      <div id="info"> </div>
+      <div id="taste-profile" class="main-display container span12">
+          <div class="container">
+              <div class='hist-section span11' id="tp-summary">
+                  <h4> Taste Profile Summary</h4>
+                    <table class="table table-striped table-condensed table-bordered">
+                        <thead>
+                        </thead>
+                        <tbody id="tp-sum">
+                            <tr> <th> Catalog ID </th> <td id="tp-sum-id"> </td> 
+                                <th> Catalog Name </th> <td id="tp-sum-name"> </td> </tr>
+                            <tr> <th> Catalog type </th> <td id="tp-sum-type"> </td> 
+                                <th> Total items</th> <td id="tp-sum-total"> </td> </tr>
+                            <tr> <th> Resolved items</th> <td id="tp-sum-resolved"> </td> 
+                                 <th> Pending tickets</th> <td id="tp-sum-pending"> </td> </tr>
+                        </tbody>
+                    </table>
+              </div>
+
+
+              <div class='hist-section span6' id="tp-favorite-artists">
+                  <h4> Your favorite artists</h4>
+                    <table class="table table-striped table-condensed table-bordered">
+                        <thead>
+                            <tr>
+                                <th> Artist </th>
+                            </tr>
+                        </thead>
+                        <tbody id="tp-favorite-artist-rows">
+                        </tbody>
+                    </table>
+              </div>
+              <div class='hist-section span5' id="tp-banned-artists">
+                  <h4> Your banned artists</h4>
+                    <table class="table table-striped table-condensed table-bordered">
+                        <thead>
+                            <tr>
+                                <th> Artist </th>
+                            </tr>
+                        </thead>
+                        <tbody id="tp-banned-artist-rows">
+                        </tbody>
+                    </table>
+              </div>
+              <div class='hist-section span5' id="tp-most-played-artists">
+                  <h4> Your Most Played artists</h4>
+                    <table class="table table-striped table-condensed table-bordered">
+                        <thead>
+                            <tr>
+                                <th> Artist </th>
+                            </tr>
+                        </thead>
+                        <tbody id="tp-most-played-artist-rows">
+                        </tbody>
+                    </table>
+              </div>
+          </div>
+          <div class='hist-section' id="tp-favorite-songs">
+              <h4> Your favorite songs</h4>
+                <table class="table table-striped table-condensed table-bordered">
+                    <thead>
+                        <tr>
+                            <th> Title </th>
+                            <th> Artist </th>
+                        </tr>
+                    </thead>
+                    <tbody id="tp-favorite-song-rows">
+                    </tbody>
+                </table>
+          </div>
+          <div class='hist-section' id="tp-banned-songs">
+              <h4> Your banned songs</h4>
+                <table class="table table-striped table-condensed table-bordered">
+                    <thead>
+                        <tr>
+                            <th> Title </th>
+                            <th> Artist </th>
+                        </tr>
+                    </thead>
+                    <tbody id="tp-banned-song-rows">
+                    </tbody>
+                </table>
+          </div>
+          <div class='hist-section' id="tp-skipped-songs">
+              <h4> Your skipped songs</h4>
+                <table class="table table-striped table-condensed table-bordered">
+                    <thead>
+                        <tr>
+                            <th> Title </th>
+                            <th> Artist </th>
+                        </tr>
+                    </thead>
+                    <tbody id="tp-skipped-song-rows">
+                    </tbody>
+                </table>
+          </div>
+          <div class='hist-section' id="tp-history" class="span12">
+              <h4> Your taste details</h4>
+                <table class="table table-striped table-condensed table-bordered">
+                    <thead>
+                        <tr>
+                            <th> # </th>
+                            <th class='tbl-time'> Last update  </th>
+                            <th> Title </th>
+                            <th> Artist </th>
+                            <th> Plays </th>
+                            <th> Skips</th>
+                            <th> Rating </th>
+                            <th> Flags </th>
+                        </tr>
+                    </thead>
+                    <tbody id="tp-history-rows">
+                    </tbody>
+                </table>
+          </div>
+      </div>
+
+      <div class="container span8 offset1">
+        <small>
+        Powered by <a href="http://echonest.com">The Echo Nest</a> and <a href="http://rdio.com">Rdio</a>. 
+        </small>
+      </div>
+    </div>
+
+</div>
+
+
+<script type="text/javascript">
+
+jQuery.ajaxSettings.traditional = true; 
+var api_key = 'FHPFXUKUGHZWWUXPR';
+var en = new EchoNest(api_key);
+
+var allItems = [];
+var unresolvedItems = [];
+
+function info(s) {
+    $("#info").removeClass();
+    if (s.length > 0) {
+        $("#info").addClass("alert alert-info");
+    }
+    $("#info").text(s);
+}
+
+function tinfo(s) {
+    info(s);
+    setTimeout( function() { info(""); }, 5000);
+}
+
+function error(s) {
+    $("#info").removeClass();
+    if (s.length > 0) {
+        $("#info").addClass("alert alert-error");
+    }
+    $("#info").text(s);
+}
+
+function terror(s) {
+    error(s);
+    setTimeout( function() { error(""); }, 5000);
+}
+
+
+function fetchTasteProfile(id) {
+    info("Getting the taste profile");
+    allItems = [];
+    unresolvedItems = [];
+    fetchTasteProfileInfo(id);
+    fetchMoreFromTasteProfile(id, 0);
+}
+
+function isArtist(item) {
+    return 'artist_id' in item && (!('song_id' in item));
+}
+
+function isSong(item) {
+    return 'artist_id' in item && 'song_id' in item;
+}
+
+function sortItems(items, field) {
+     _.sortBy(items, function(item) { return item[field]; } ).reverse();
+}
+
+
+function showSimpleTPArtistList(top_div, row_div, artists) {
+    if (artists.length > 0) {
+        $(top_div).show();
+        var rows = $(row_div);
+        rows.empty();
+        $.each(artists, 
+            function(index, artist) {
+                var tr = $("<tr>");
+                tr.append( $("<td>").text(artist.artist_name) );
+                rows.append(tr);
+            }
+        );
+    } else {
+        $(top_div).hide();
+    }
+}
+
+function showSimpleTPSongList(top_div, row_div, songs) {
+    if (songs.length > 0) {
+        $(top_div).show();
+        var rows = $(row_div);
+        rows.empty();
+        $.each(songs, 
+            function(index, song) {
+                var tr = $("<tr>");
+                tr.append( $("<td>").text( song.song_name ) );
+                tr.append( $("<td>").text( song.artist_name ) );
+                rows.append(tr);
+            }
+        );
+    } else {
+        $(top_div).hide();
+    }
+}
+
+function gi(item, field, def) {
+    if (field in item) {
+        return item[field];
+    } else {
+        return def;
+    }
+}
+
+function showFullTPItemList(top_div, row_div, items) {
+    if (items.length > 0) {
+        $(top_div).show();
+        var rows = $(row_div);
+        rows.empty();
+        $.each(items, 
+            function(index, item) {
+                var tr = $("<tr>");
+                tr.append( $("<td>").text( index + 1) );
+                tr.append( $("<td>").text( item.last_modified) );
+                if (isSong(item)) {
+                    tr.append( $("<td>").text( item.song_name ) );
+                    tr.append( $("<td>").text( item.artist_name ) );
+                } else if (isArtist(item)) {
+                    tr.append( $("<td>").text( '') );
+                    tr.append( $("<td>").text( item.artist_name ) );
+                }
+                tr.append( $("<td>").text( gi(item, 'play_count', 0) ));
+                tr.append( $("<td>").text( gi(item, 'skip_count', 0) ));
+                tr.append( $("<td>").text( gi(item, 'rating', '') ));
+                tr.append( $("<td>").text( 
+                    (gi(item, 'favorite', false) ? 'fav' : '')  +
+                    (gi(item, 'banned', false) ? 'banned' : '' )));
+                rows.append(tr);
+            }
+        );
+    } else {
+        $(top_div).hide();
+    }
+}
+
+
+function updateTasteProfileView() {
+    var favArtists = _.filter(allItems, function(item) { return isArtist(item) && item.favorite; } );
+    showSimpleTPArtistList("#tp-favorite-artists", "#tp-favorite-artist-rows", favArtists);
+
+    var bannedArtists = _.filter(allItems, function(item) { return isArtist(item) && item.banned; } );
+    showSimpleTPArtistList("#tp-banned-artists", "#tp-banned-artist-rows", bannedArtists);
+
+    var playedArtists = _.filter(allItems, function(item) { return isArtist(item) && item.play_count; } );
+    var mostPlayedArtists = _.sortBy(playedArtists, function(item) { return item.play_count; } ).reverse();
+    showSimpleTPArtistList("#tp-most-played-artists", "#tp-most-played-artist-rows", mostPlayedArtists.slice(0, 10));
+
+    var favSongs = _.filter(allItems, function(item) { return isSong(item) && item.favorite; } );
+    showSimpleTPSongList("#tp-favorite-songs", "#tp-favorite-song-rows", favSongs);
+
+    var bannedSongs = _.filter(allItems, function(item) { return isSong(item) && item.banned; } );
+    showSimpleTPSongList("#tp-banned-songs", "#tp-banned-song-rows", bannedSongs);
+
+    var skippedSongs = _.filter(allItems, function(item) { return isSong(item) && item.skip_count; } );
+    showSimpleTPSongList("#tp-skipped-songs", "#tp-skipped-song-rows", skippedSongs);
+
+    var sortedItems = _.sortBy(allItems, function(item) { return item['last_modified']; } ).reverse();
+    showFullTPItemList("#tp-history", "#tp-history-rows", sortedItems);
+}
+
+
+function fetchTasteProfileInfo(id) {
+    en.catalog.profile(id, 
+        function(data) {
+          var cat = data.response.catalog;
+          $("#tp-sum-id").text(cat.id);
+          $("#tp-sum-name").text(cat.name);
+          $("#tp-sum-type").text(cat.type);
+          $("#tp-sum-total").text(cat.total);
+          $("#tp-sum-resolved").text(cat.resolved);
+          $("#tp-sum-pending").text(cat.pending_tickets.length);
+        },
+        
+        function() {
+            error("trouble fetching taste profile");
+        }
+    );
+}
+
+function fetchMoreFromTasteProfile(id, start) {
+    var pageSize = 100;
+    var maxItems = 100000;
+    info("Getting TP info ...");
+    en.catalog.read(id, start, pageSize, [],
+        function(data) {
+            var curStart = data.response.catalog.start;
+            var items = data.response.catalog.items;
+            var total = data.response.catalog.total;
+
+            $.each(items, 
+                function(index, item) {
+                    if ('artist_id' in item) {
+                        allItems.push(item);
+                    } else {
+                        unresolvedItems.push(item);
+                    }
+                }
+            );
+
+
+            if (start != curStart) {
+                console.log('woah, something bad happend', start, curStart);
+            }
+            if (start + items.length < total && start < maxItems) {
+                fetchMoreFromTasteProfile(id, curStart + items.length);
+            } else {
+                info("");
+                updateTasteProfileView();
+            }
+        },
+        
+        function() {
+            error("trouble fetching taste profile");
+        }
+    );
+}
+
+
+function showTasteProfile() {
+    console.log('showtasteprofile');
+    var id = $("#catalog-id").val();
+    fetchTasteProfile(id);
+    $("#taste-profile").show();
+}
+
+
+function initUI() {
+    $("#refresh").click(function() {
+        showTasteProfile();
+    });
+}
+
+function processParams() {
+    var params = {};
+    var q = document.URL.split('?')[1];
+    if(q != undefined){
+        q = q.split('&');
+        for(var i = 0; i < q.length; i++){
+            var pv = q[i].split('=');
+            var p = pv[0];
+            var v = pv[1];
+            params[p] = v;
+        }
+    }
+
+    if ('id' in params) {
+        var tp = params['id'];
+        $("#catalog-id").val(tp);
+        showTasteProfile();
+    } else {
+        error("I've got no Taste Profile to show");
+    }
+}
+
+$(document).ready(function() {
+    $.ajaxSetup( {cache: false});
+    initUI();
+    processParams();
+});
+
+</script>
+</body>
+</html>
