@@ -248,6 +248,7 @@ function createDynamicPlaylist() {
 }
 
 function badSong() {
+    terror("banning  " + curSong.artist_name);
     en.playlist.feedback('ban_artist', curSong.artist_id,
         function(data) {
             terror("banned songs by " + curSong.artist_name);
@@ -260,6 +261,7 @@ function badSong() {
 }
 
 function skipSong() {
+    tinfo("skipping  " + curSong.title);
     en.playlist.feedback('skip_song', curSong.id,
         function(data) {
             tinfo("skipped " + curSong.title);
@@ -276,6 +278,7 @@ function goodSong() {
         favorite_artist: curSong.artist_id,
         favorite_song: curSong.id
     };
+    tinfo("Favoriting  " + curSong.artist_name);
     en.playlist.multifeedback(args,
         function(data) {
             $("#up-next").text("a surprise ...");
