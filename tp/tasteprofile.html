@@ -201,18 +201,8 @@ function playNextSong() {
     fetchNextTrack();
 }
 
-
 function fetchNextTrack() {
-    var url = 'http://developer.echonest.com/api/v4/playlist/dynamic/next';
-
-    var args = { 
-        api_key : 'FHPFXUKUGHZWWUXPR',
-        session_id : session_id,
-        results: 1,
-        lookahead: 5,
-    };
-
-    $.getJSON(url, args,
+    en.playlist.nextSong(1, 5,
         function(data) {
             if (data.response.songs.length > 0) {
                 playSong(data.response.songs[0]);
@@ -232,95 +222,67 @@ function fetchNextTrack() {
             $("#up-next").append(all);
         },
         function() {
-            error("Trouble creating playlist session for " + artist);
+            error("Trouble getting the next track on this station");
         }
     );
 }
 
 function createDynamicPlaylist() {
-    var url = 'http://developer.echonest.com/api/v4/playlist/dynamic/create';
     tinfo("Creating the playlist ...");
 
     var args = {
-        'api_key' : 'FHPFXUKUGHZWWUXPR',
         'bucket': [ 'id:rdio-US', 'tracks'], 'limit' : true,
         'type':'catalog-radio',
         'seed_catalog' : catalogID,
         'session_catalog' : catalogID
     };
 
-    $.getJSON(url, args,
+    en.playlist.create(args,
         function(data) {
-            if (data.response.status.code == 0) {
-                session_id = data.response.session_id;
-                fetchNextTrack();
-            } else {
-                error("Trouble creating playlist for artist " + artist);
-            }
+            fetchNextTrack();
         },
         function() {
-            error("Trouble creating playlist session for " + artist);
+            error("Trouble creating playlist session");
         }
     );
 }
 
 function badSong() {
-    var url = 'http://developer.echonest.com/api/v4/playlist/dynamic/feedback';
-
-    var args = { 
-        api_key : 'FHPFXUKUGHZWWUXPR',
-        session_id : session_id,
-        ban_artist: curSong.artist_id,
-    };
-
-    $.getJSON(url, args,
+    en.playlist.feedback('ban_artist', curSong.artist_id,
         function(data) {
             terror("banned songs by " + curSong.artist_name);
             playNextSong();
         },
         function() {
-            error("Trouble creating playlist session for " + artist);
+            error("Trouble flagging that as a bad song");
         }
     );
 }
 
 function skipSong() {
-    var url = 'http://developer.echonest.com/api/v4/playlist/dynamic/feedback';
-
-    var args = { 
-        api_key : 'FHPFXUKUGHZWWUXPR',
-        session_id : session_id,
-        skip_song: curSong.id
-    };
-
-    $.getJSON(url, args,
+    en.playlist.feedback('skip_song', curSong.id,
         function(data) {
             tinfo("skipped " + curSong.title);
             playNextSong();
         },
         function() {
-            error("Trouble creating playlist session for " + artist);
+            error("Trouble skipping song");
         }
     );
 }
 
 function goodSong() {
-    var url = 'http://developer.echonest.com/api/v4/playlist/dynamic/feedback';
-
     var args = { 
-        api_key : 'FHPFXUKUGHZWWUXPR',
-        session_id : session_id,
-        favorite_artist: 'last',
-        favorite_song: 'last'
+        favorite_artist: curSong.artist_id,
+        favorite_song: curSong.id
     };
-
-    $.getJSON(url, args,
+    en.playlist.multifeedback(args,
         function(data) {
             $("#up-next").text("a surprise ...");
-            tinfo("favorited " + curSong.artist_name);
+            tinfo("favorited song by " + curSong.artist_name);
         },
         function() {
-            error("Trouble creating playlist session for " + artist);
+            terror("Trouble giving feedback");
         }
     );
 }

@@ -129,13 +129,9 @@ Playlist.prototype.info = function(callback, error) {
     this.end_point = oldEndpoint;
 };
 
-Playlist.prototype.feedback = function(type, id, callback, error) {   
-    var config = {
-        session_id: this.sessionID,
-    }
-    config[type] = id;
-
-    this.en.apiRequest('playlist/dynamic/feedback', config, callback, error);
+Playlist.prototype.multifeedback = function(args, callback, error) {   
+    args.session_id = this.sessionID;
+    this.en.apiRequest('playlist/dynamic/feedback', args, callback, error);
 };
 
 Playlist.prototype.steer = function(param, value, callback, error) {   
@@ -145,6 +141,15 @@ Playlist.prototype.steer = function(param, value, callback, error) {
     config[param] = value;
 
     this.en.apiRequest('playlist/dynamic/steer', config, callback, error);
+};
+
+Playlist.prototype.feedback = function(param, value, callback, error) {   
+    var config = {
+        session_id: this.sessionID,
+    }
+    config[param] = value;
+
+    this.en.apiRequest('playlist/dynamic/feedback', config, callback, error);
 };
 
 
