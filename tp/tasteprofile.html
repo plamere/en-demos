@@ -30,11 +30,16 @@
 
         #info-container {
             margin-top:20px;
-            min-height:32px;
+            min-height:40px;
             margin-bottom:20px;
         }
 
         #tp-buttons {
+            margin-top:20px;
+            margin-bottom:20px;
+        }
+
+        #change-station {
             margin-top:20px;
             margin-bottom:20px;
         }
@@ -57,6 +62,22 @@
     <div class="modal-footer">
         <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
         <button type="button" id="reset-taste" class="btn btn-danger">Delete your taste data</button>
+    </div>
+</div>
+
+<div id="restartModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="changeModalLabel" aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+        <h3 id="changeModalLabel"> New Station </h3>
+    </div>
+    <div class="modal-body">
+        <label> Type in the name of an artist to change the station to music by that artist and other similar artists.</label>
+        <input id="seed-artist" type="text" class="input-large" placeholder="an artist name" </input>
+    </div>
+
+    <div class="modal-footer">
+        <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+        <button type="button" id="restart-station" class="btn btn-primary">Go </button>
     </div>
 </div>
 
@@ -127,12 +148,15 @@
         <div id='tp-buttons'>
             <button class='btn btn-primary' id='view-tp'> View Profile </button>
             <a class='btn btn-danger' href="#resetModal" data-toggle="modal"> Reset Profile </a>
+            <button class='btn btn-primary' id='view-station'> View Station </button>
+            <a class='btn btn-primary' id="change-station" href="#restartModal" data-toggle="modal"> New Station</a>
         </div>
         <div id="info-container">
             <div id="info" class=""> </div>
         </div> 
         <h4> Up Next </h4>
         <div id="up-next" class=""> </div>
+      
 
     </div>
   </div>
@@ -234,7 +258,7 @@ function createDynamicPlaylist() {
         'bucket': [ 'id:rdio-US', 'tracks'], 'limit' : true,
         'type':'catalog-radio',
         'seed_catalog' : catalogID,
-        'session_catalog' : catalogID
+        'session_catalog' : catalogID,
     };
 
     en.playlist.create(args,
@@ -243,6 +267,28 @@ function createDynamicPlaylist() {
         },
         function() {
             error("Trouble creating playlist session");
+        }
+    );
+}
+
+function restartDynamicPlaylistWithSeed(artistName) {
+    tinfo("Changing the seed to " + artistName + " ...");
+
+    var args = {
+        'bucket': [ 'id:rdio-US', 'tracks'], 'limit' : true,
+        'type':'catalog-radio',
+        'seed_catalog' : catalogID,
+        'session_catalog' : catalogID,
+        'adventurousness' : .9,
+        'artist': artistName
+    };
+
+    en.playlist.restart(args,
+        function(data) {
+            fetchNextTrack();
+        },
+        function() {
+            error("Trouble restarting playlist session");
         }
     );
 }
@@ -446,9 +492,37 @@ function initUI() {
    $("#view-tp").click(
         function() {
             var url = 'tpview.html?id=' + catalogID;
-            window.open(url, 'TasteProfileWindow');
+            window.open(url, 'ViewData');
         }
     );
+
+
+   $("#view-station").click(
+        function() {
+            var url = 'dpview.html?id=' + en.playlist.sessionID;
+            window.open(url, 'ViewData');
+        }
+    );
+
+    $("#restart-station").click(function() {
+        var artist = $("#seed-artist").val();
+        if (artist.length > 0) {
+            restartDynamicPlaylistWithSeed(artist);
+            $('#restartModal').modal('hide')
+        }
+    });
+
+    $("#seed-artist").keydown(
+        function(){
+            if (event.keyCode == 13) {
+                var artist = $("#seed-artist").val();
+                if (artist.length > 0) {
+                    restartDynamicPlaylistWithSeed(artist);
+                    $('#restartModal').modal('hide')
+                }
+            }
+        });
+
 }
 
 $(document).ready(function() {

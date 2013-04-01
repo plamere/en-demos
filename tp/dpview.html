@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Playlist Session Viewer</title>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css" rel="stylesheet">
+    <script src="jquery.cookie.js" type="text/javascript" charset="utf-8"></script>
+    <script src="underscore-min.js" type="text/javascript" charset="utf-8"></script>
+    <script type="text/javascript" src="date.format.js"></script> 
+    <script src="echonest.js" type="text/javascript" charset="utf-8"></script>
+    <script src="json2.js" type="text/javascript" charset="utf-8"></script>
+    <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
+    <style>
+        #taste-profile {
+            display:none;
+        }
+        #refresh{
+            margin-top: -8px;
+        }
+
+    </style>
+  </head>
+
+<body>
+
+<div id="wrap" class="navbar navbar-inverse">
+  <div class="navbar-inner">
+    <div class="container">
+        <a id='show-search' class="brand">Playlist Session Viewer</a>
+        <ul class="nav">
+          <li class="nav-choice active"><a id='show-main'>Main</a></li>
+          <li class="nav-choice"><a href="https://github.com/plamere/en-demos/blob/master/tp/">The Source</a></li>
+          <li class="nav-choice"><a href="http://developer.echonest.com/docs/v4/playlist.html">Playlist API</a></li>
+        </ul>
+        <ul class="nav pull-right">
+          <li class="nav-choice"><a href="http://static.echonest.com/labs">Labs</a></li>
+          <li class="nav-choice"><a href="http://static.echonest.com/labs/demo.html">Demos</a></li>
+          <li class="nav-choice"><a href="http://developer.echonest.com">developer.echonest.com</a></li>
+        </ul>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+    <div id="the-form" class="span12 well">
+        <h2> Dynamic Playlist Session Viewer</h2>
+        <div>
+            <label> Enter the session ID </label>
+            <input id="session-id" class="input-xlarge" type="text" placeholder="Enter playlist session  ID" </input>
+            <button id="refresh" class="btn btn-primary"> Refresh </button>
+        </div>
+    </div>
+</div>
+
+  <div class="container ">
+      <div id="info"> </div>
+      <div id="listening-history" class="main-display container span12">
+        <h2> Your Listening History</h2>
+          <div class="container">
+              <div class='hist-section span6' id="favorite-artists">
+                  <h4> Your favorite artists</h4>
+                    <table class="table table-striped table-condensed table-bordered">
+                        <thead>
+                            <tr>
+                                <th> Artist </th>
+                            </tr>
+                        </thead>
+                        <tbody id="favorite-artist-rows">
+                        </tbody>
+                    </table>
+              </div>
+              <div class='hist-section span5' id="banned-artists">
+                  <h4> Your banned artists</h4>
+                    <table class="table table-striped table-condensed table-bordered">
+                        <thead>
+                            <tr>
+                                <th> Artist </th>
+                            </tr>
+                        </thead>
+                        <tbody id="banned-artist-rows">
+                        </tbody>
+                    </table>
+              </div>
+          </div>
+          <div class='hist-section' id="favorite-songs">
+              <h4> Your favorite songs</h4>
+                <table class="table table-striped table-condensed table-bordered">
+                    <thead>
+                        <tr>
+                            <th> Title </th>
+                            <th> Artist </th>
+                        </tr>
+                    </thead>
+                    <tbody id="favorite-song-rows">
+                    </tbody>
+                </table>
+          </div>
+          <div class='hist-section' id="banned-songs">
+              <h4> Your banned songs</h4>
+                <table class="table table-striped table-condensed table-bordered">
+                    <thead>
+                        <tr>
+                            <th> Title </th>
+                            <th> Artist </th>
+                        </tr>
+                    </thead>
+                    <tbody id="banned-song-rows">
+                    </tbody>
+                </table>
+          </div>
+          <div class='hist-section' id="skipped-songs">
+              <h4> Your skipped songs</h4>
+                <table class="table table-striped table-condensed table-bordered">
+                    <thead>
+                        <tr>
+                            <th> # </th>
+                            <th class='tbl-time'> Play time  </th>
+                            <th> Title </th>
+                            <th> Artist </th>
+                        </tr>
+                    </thead>
+                    <tbody id="skipped-song-rows">
+                    </tbody>
+                </table>
+          </div>
+          <div class='hist-section' id="history">
+              <h4> Your Listening History </h4>
+                <table class="table table-striped table-condensed table-bordered">
+                    <thead>
+                        <tr>
+                            <th> # </th>
+                            <th class='tbl-time'> Play time  </th>
+                            <th> Title </th>
+                            <th> Artist </th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-rows">
+                    </tbody>
+                </table>
+          </div>
+          <div class='hist-section' id="call-list">
+              <h4> The call list</h4>
+                <table class="table table-striped table-condensed table-bordered">
+                    <thead>
+                        <tr>
+                            <th> # </th>
+                            <th class='tbl-time'> Play time  </th>
+                            <th> Action  </th>
+                            <th> Params </th>
+                        </tr>
+                    </thead>
+                    <tbody id="call-list-rows">
+                    </tbody>
+                </table>
+          </div>
+      </div>
+
+      <div class="container span8 offset1">
+        <small>
+        Powered by <a href="http://echonest.com">The Echo Nest</a> and <a href="http://rdio.com">Rdio</a>. 
+        </small>
+      </div>
+    </div>
+
+</div>
+
+
+<script type="text/javascript">
+
+jQuery.ajaxSettings.traditional = true; 
+var api_key = 'FHPFXUKUGHZWWUXPR';
+var en = new EchoNest(api_key);
+var itemCache = {};
+
+function info(s) {
+    $("#info").removeClass();
+    if (s.length > 0) {
+        $("#info").addClass("alert alert-info");
+    }
+    $("#info").text(s);
+}
+
+function tinfo(s) {
+    info(s);
+    setTimeout( function() { info(""); }, 5000);
+}
+
+function error(s) {
+    $("#info").removeClass();
+    if (s.length > 0) {
+        $("#info").addClass("alert alert-error");
+    }
+    $("#info").text(s);
+}
+
+function terror(s) {
+    error(s);
+    setTimeout( function() { error(""); }, 5000);
+}
+
+
+function fmtTime(time) {
+    var d = new Date(time * 1000);
+    return d.format("m/dd/yy h:MM:ss TT");
+}
+
+function showSongHistory(songs) {
+    showFullSongList("#history", "#history-rows", songs);
+}
+
+function showSkippedSongs(songs) {
+    showFullSongList("#skipped-songs", "#skipped-song-rows", songs);
+}
+
+
+function showBannedSongs(songs) {
+    showSimpleSongList("#banned-songs", "#banned-song-rows", songs);
+}
+
+function showFavoriteSongs(songs) {
+    showSimpleSongList("#favorite-songs", "#favorite-song-rows", songs);
+}
+
+function showFavoriteArtists(artists) {
+    showSimpleArtistList("#favorite-artists", "#favorite-artist-rows", artists);
+}
+
+function showBannedArtists(artists) {
+    showSimpleArtistList("#banned-artists", "#banned-artist-rows", artists);
+}
+
+function showSimpleSongList(top_div, row_div, songs) {
+    if (songs.length > 0) {
+        $(top_div).show();
+        var rows = $(row_div);
+        rows.empty();
+        var dups = {}
+        for (var i = 0; i < songs.length; i++) {
+            var id = songs[i];
+            var tr = $("<tr>");
+
+            if (id in dups) {
+                continue;
+            }
+            dups[id] = id;
+
+            if (id in itemCache) {
+                var song = itemCache[id];
+                tr.append( $("<td>").text( song.title ) );
+                tr.append( $("<td>").text( song.artist_name ) );
+                rows.append(tr);
+            } else {
+                tr.append( $("<td>").text( id ) );
+                tr.append( $("<td>").text( '' ) );
+            }
+        }
+    } else {
+        $(top_div).hide();
+    }
+}
+
+function showSimpleArtistList(top_div, row_div, artists) {
+    if (artists.length > 0) {
+        $(top_div).show();
+        var rows = $(row_div);
+        rows.empty();
+        for (var i = 0; i < artists.length; i++) {
+            var id = artists[i];
+            var name = id;
+            if (id in itemCache) {
+                name = itemCache[id];
+            }
+            var tr = $("<tr>");
+            tr.append( $("<td>").text(name) );
+            rows.append(tr);
+        }
+    } else {
+        $(top_div).hide();
+    }
+}
+
+function showFullSongList(top_div, row_div, songs) {
+    if (songs.length > 0) {
+        $(top_div).show();
+        var rows = $(row_div);
+        rows.empty();
+        for (var i = 0; i < songs.length; i++) {
+            var playedSong = songs[i];
+            var tr = $("<tr>");
+            tr.append( $("<td>").text( i + 1) );
+            tr.append( $("<td>").text( fmtTime(playedSong.served_time)) );
+            tr.append( $("<td>").text( playedSong.title ) );
+            tr.append( $("<td>").text( playedSong.artist_name ) );
+            rows.append(tr);
+        }
+    } else {
+        $(top_div).hide();
+    }
+}
+
+
+function pushToCache(session) {
+    for (var i = 0; i < session.history.length; i++) {
+        var song = session.history[i];
+        itemCache[song.id] = song;
+        itemCache[song.artist_id] = song.artist_name
+    }
+    for (var i = 0; i < session.skipped_songs.length; i++) {
+        var song = session.skipped_songs[i];
+        itemCache[song.id] = song;
+        itemCache[song.artist_id] = song.artist_name
+    }
+}
+
+
+function showCallList(call_list) {
+    var rows = $("#call-list-rows");
+    rows.empty();
+
+    $.each(call_list, function(i, entry) {
+        var tr = $("<tr>");
+        tr.append( $("<td>").text( i + 1) );
+        tr.append( $("<td>").text( fmtTime(entry.time)) );
+        tr.append( $("<td>").text( entry.action ) );
+
+        var params = JSON.stringify(entry.parameters);
+        tr.append( $("<td>").text(params));
+        rows.append(tr);
+    });
+}
+
+
+function fetchListeningHistory() {
+    var id = $("#session-id").val();
+    en.apiRequest('playlist/dynamic/info', {session_id:id}, 
+        function(data) {
+            var session = data.response;
+            pushToCache(session);
+            showBannedSongs(session.banned_song_ids);
+            showSkippedSongs(session.skipped_songs);
+            showFavoriteSongs(session.favorited_song_ids);
+            showBannedArtists(session.banned_artist_ids);
+            showFavoriteArtists(session.favorited_artist_ids);
+            showSongHistory(session.history);
+            showCallList(session.call_list);
+        },
+        function() {
+            info("trouble getting session info");
+        }
+    );
+}
+
+function initUI() {
+    $("#refresh").click(function() {
+        fetchListeningHistory();
+    });
+}
+
+function showListeningHistory() {
+    $(".nav-choice").removeClass("active");
+    $("#show-history").parent().addClass("active");
+    $(".main-display").hide();
+    fetchListeningHistory();
+    $("#listening-history").show();
+}
+
+function processParams() {
+    var params = {};
+    var q = document.URL.split('?')[1];
+    if(q != undefined){
+        q = q.split('&');
+        for(var i = 0; i < q.length; i++){
+            var pv = q[i].split('=');
+            var p = pv[0];
+            var v = pv[1];
+            params[p] = v;
+        }
+    }
+
+    if ('id' in params) {
+        var id = params['id'];
+        $("#session-id").val(id);
+        showListeningHistory();
+    } else {
+        error("I've got no Taste Profile to show");
+    }
+}
+
+$(document).ready(function() {
+    $.ajaxSetup( {cache: false});
+    initUI();
+    processParams();
+});
+
+</script>
+</body>
+</html>

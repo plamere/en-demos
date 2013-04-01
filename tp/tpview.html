@@ -376,7 +376,7 @@ function fetchMoreFromTasteProfile(id, start) {
             if (start != curStart) {
                 console.log('woah, something bad happend', start, curStart);
             }
-            if (start + items.length < total && start < maxItems) {
+            if (items.length == pageSize && start + items.length < total && start < maxItems) {
                 fetchMoreFromTasteProfile(id, curStart + items.length);
             } else {
                 info("");
