@@ -186,6 +186,35 @@ function fetchNextTrack() {
     );
 }
 
+function fetchUpNext() {
+    var url = 'http://developer.echonest.com/api/v4/playlist/dynamic/next';
+
+    var args = { 
+        api_key : 'FHPFXUKUGHZWWUXPR',
+        session_id : session_id,
+        results: 0,
+        lookahead: 5,
+    };
+
+    $.getJSON(url, args,
+        function(data) {
+            $("#up-next").empty();
+            var names = [];
+
+            $.each(data.response.lookahead, 
+                function(index, song) {
+                    names.push(song.artist_name);
+                }
+            );
+            var all = names.join(', ');
+            $("#up-next").append(all);
+        },
+        function() {
+            error("Trouble getting next artists in the playlist");
+        }
+    );
+}
+
 function createDynamicPlaylist(artist) {
     var url = 'http://developer.echonest.com/api/v4/playlist/dynamic/create';
     tinfo("Creating the playlist ...");
@@ -225,6 +254,7 @@ function badSong() {
         ban_artist: curSong.artist_id,
     };
 
+    terror("banning songs by " + curSong.artist_name);
     $.getJSON(url, args,
         function(data) {
             terror("banned songs by " + curSong.artist_name);
@@ -245,6 +275,7 @@ function skipSong() {
         skip_song: curSong.id
     };
 
+    tinfo("skipping " + curSong.title);
     $.getJSON(url, args,
         function(data) {
             tinfo("skipped " + curSong.title);
@@ -266,9 +297,10 @@ function goodSong() {
         favorite_song: 'last'
     };
 
+    tinfo("favoriting " + curSong.artist_name);
     $.getJSON(url, args,
         function(data) {
-            $("#up-next").text("a surprise ...");
+            fetchUpNext();
             tinfo("favorited " + curSong.artist_name);
         },
         function() {
@@ -276,6 +308,8 @@ function goodSong() {
         }
     );
 }
+
+
 
 function now() {
     return new Date().getTime();
