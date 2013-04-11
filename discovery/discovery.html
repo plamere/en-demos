@@ -111,7 +111,7 @@
                 <ul> 
                     <li> <b>Hottttnesss</b> - Songs that are the most popular
                     <li> <b>Currency</b> - Songs that just recently became popular
-                    <li> <b>Discovery</b> - Songs that just recently and unexpectedly, became popular
+                    <li> <b>Discovery</b> - Songs that just recently and unexpectedly became popular
                 </ul>
                 <div>
                     <div id='play-all' class="btn-group container">
@@ -166,6 +166,8 @@ var player = null;  // the rdio interface
 var songList = [];  // list of top hottt songs
 var dups = {};      // used to eliminate dup songs
 var tdivs = {};     // maps rdio track keys to their corresponding div in the table
+var sdivs = {};     // maps song hashes to their corresponding divs
+var maxSongs = 100;
 
 
 function muted_div(full, val) {
@@ -178,11 +180,17 @@ function muted_div(full, val) {
     return div;
 }
 
+function hasTrack(song) {
+    return song.tracks.length > 0;
+}
+
+
 function format(which, index, item) {
     var tr = $("<tr>");
     var i = $("<td>").text(index + 1);
     var a = $("<td>").text(item.artist_name);
-    var t = $("<td>").text(item.title);
+    var t = muted_div(hasTrack(item), item.title);
+
     var h = muted_div(which === 'song_hotttnesss', Math.round(1000 * item.song_hotttnesss));
     var d = muted_div(which === 'discovery', Math.round(1000 * item.discovery));
     var c = muted_div(which === 'currency', Math.round(1000 * item.currency));
@@ -194,22 +202,14 @@ function format(which, index, item) {
     tr.append(c);
     tr.append(d);
 
-    tr.click(function() {
-        player.playSong(item);
-    });
 
-    tdivs[getRdioID(item)] = tr;
-    return tr;
-}
-
-function isGoodSong(song) {
-    var hash = getDupHash(song);
-    if (! (hash in dups)) {
-        dups[hash] = song;
-        return true;
-    } else {
-        return false;
+    if (hasTrack(item)) {
+        tdivs[getRdioID(item)] = tr;
+        tr.click(function() {
+            player.playSong(item);
+        });
     }
+    return tr;
 }
 
 function getDupHash(song) {
@@ -232,8 +232,42 @@ function clearResults() {
     $("#song-data").empty();
 }
 
+
+function addSong(song) {
+    var oldLength = songList.length;
+    song.hash = getDupHash(song);
+    if (songList.length >= maxSongs) {
+        return false;
+    } else if (songList.length == 0) {
+        console.log('pushed');
+        songList.push(song);
+    } else {
+        var prev = songList.length - 1;
+        console.log('as', hasTrack(song),  prev, songList[prev].hash, song.hash, song);
+        if (songList[prev].hash == song.hash) {
+            if (hasTrack(song)) {
+                console.log('replaced');
+                songList[prev] = song;
+            } 
+        } else {
+            console.log('pushed');
+            songList.push(song);
+        }
+    }
+    return songList.length > oldLength ;
+}
+
+function rerender(which) {
+    var tbody = $("#song-data");
+    tbody.empty();
+    $.each(songList, function(index, song) {
+        var div = format(which, index, song)
+        sdivs[song.hash] = div;
+        tbody.append(div);
+    });
+}
+
 function fetchSongs(which, start, results) {
-    var maxSongs = 100;
     var url = 'http://developer.echonest.com/api/v4/song/search';
 
     var tbody = $("#song-data");
@@ -247,7 +281,7 @@ function fetchSongs(which, start, results) {
     var args = {
         api_key: api_key,
         bucket : ['id:rdio-US', 'tracks', 'song_hotttnesss', 'currency', 'discovery'],
-        limit: true,
+        limit: false,
         start: start,
         results: results,
         sort: sort
@@ -263,23 +297,20 @@ function fetchSongs(which, start, results) {
                 error("NO rdio songs for " + artistName);
             } else {
                 $.each(songs, function(index, song) {
-                    if (isGoodSong(song)) {
-                        var div = format(which, songList.length, song)
-                        song.div = div;
+                    if (addSong(song)) {
+                        var div = format(which, songList.length - 1, song)
+                        sdivs[song.hash] = div;
                         tbody.append(div);
-                        if (songList.length < maxSongs) {
-                            songList.push(song);
-                        }
                     }
                 });
 
                 if (songList.length  < maxSongs) {
                     if (start == 0) {
-                        console.log(songs[0].artist_name);
                         player.addSongs(songList, false);
                     }
                     fetchSongs(which, start + songs.length, 100);
                 } else {
+                    rerender(which);
                     running(false);
                 }
             }

@@ -1,5 +1,6 @@
 
 
+
 function getRdioPlayer(readyCallback) {
     var curSongIndex = 0;
     var curSongs = [];
@@ -11,13 +12,19 @@ function getRdioPlayer(readyCallback) {
         return rawID;
     }
 
+    function hasTrack(song) {
+        return song.tracks.length > 0;
+    }
+
     function playSong(song) {
-        var rdioID = getRdioID(song);
-        R.player.play({
-            source: rdioID
-        });
-        $("#rp-song-title").text(song.title);
-        $("#rp-artist-name").text(song.artist_name);
+        if (hasTrack(song)) {
+            var rdioID = getRdioID(song);
+            R.player.play({
+                source: rdioID
+            });
+            $("#rp-song-title").text(song.title);
+            $("#rp-artist-name").text(song.artist_name);
+        }
     }
 
 
@@ -34,19 +41,22 @@ function getRdioPlayer(readyCallback) {
     }
 
     function playNextSong() {
-        if (curSongIndex >= curSongs.length) {
-            curSongIndex = 0;
-        }
-
-        if (curSongIndex < curSongs.length) {
-            playSong(curSongs[curSongIndex++]);
+        while (curSongIndex < curSongs.length) {
+            var song = curSongs[curSongIndex++];
+            if (hasTrack(song)) {
+                playSong(song);
+                break;
+            }
         }
     }
 
     function playPreviousSong() {
-        if (curSongIndex >= 2) {
-            curSongIndex -= 2;
-            playNextSong();
+        while (curSongIndex > 0) {
+            var song = curSongs[--curSongIndex];
+            if (hasTrack(song)) {
+                playSong(song);
+                break;
+            }
         }
     }
 
