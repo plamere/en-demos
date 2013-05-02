@@ -7,7 +7,9 @@
     <script src="jquery.cookie.js" type="text/javascript" charset="utf-8"></script>
     <script src="underscore-min.js" type="text/javascript" charset="utf-8"></script>
     <script src="echonest.js" type="text/javascript" charset="utf-8"></script>
+    <script src="key.js" type="text/javascript" charset="utf-8"></script>
     <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
+
     <style>
         #taste-profile {
             display:none;
@@ -34,9 +36,28 @@
           <li class="nav-choice"><a href="http://static.echonest.com/labs">Labs</a></li>
           <li class="nav-choice"><a href="http://static.echonest.com/labs/demo.html">Demos</a></li>
           <li class="nav-choice"><a href="http://developer.echonest.com">developer.echonest.com</a></li>
+          <li class="nav-choice"><a data-toggle="modal" href="#apiKeyModal">API Key</a></li>
         </ul>
     </div>
   </div>
+</div>
+
+<div id="apiKeyModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="apiKeyModalLabel" aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+        <h3 id="apiKeyModalLabel">Set your API Key</h3>
+    </div>
+
+    <div class="modal-body">
+        <label> Your Echo Nest API Key </label>
+        <input id="api_key" type="text" class="input-xlarge">
+        <span id="key-type"> </span>
+    </div>
+
+    <div class="modal-footer">
+        <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+        <button id='save-key' class="btn btn-primary">Save changes</button>
+    </div>
 </div>
 
 <div class="container">
@@ -69,6 +90,19 @@
                     </table>
               </div>
 
+              <div class='hist-section span6' id="tp-genres">
+                  <h4> Genres </h4>
+                    <table class="table table-striped table-condensed table-bordered">
+                        <thead>
+                            <tr>
+                                <th> Genre </th>
+                                <th> Item count </th>
+                            </tr>
+                        </thead>
+                        <tbody id="tp-genre-rows">
+                        </tbody>
+                    </table>
+              </div>
 
               <div class='hist-section span6' id="tp-favorite-artists">
                   <h4> Your favorite artists</h4>
@@ -179,12 +213,11 @@
 
 <script type="text/javascript">
 
-jQuery.ajaxSettings.traditional = true; 
-var api_key = 'FHPFXUKUGHZWWUXPR';
-var en = new EchoNest(api_key);
-
+var en = null;
 var allItems = [];
 var unresolvedItems = [];
+
+
 
 function info(s) {
     $("#info").removeClass();
@@ -331,6 +364,8 @@ function updateTasteProfileView() {
 
     var sortedItems = _.sortBy(allItems, function(item) { return item['last_modified']; } ).reverse();
     showFullTPItemList("#tp-history", "#tp-history-rows", sortedItems);
+
+    summarizeGenres();
 }
 
 
@@ -352,11 +387,87 @@ function fetchTasteProfileInfo(id) {
     );
 }
 
+
+function summarizeGenres() {
+    var artists = {};
+    var genreSummary = {};
+
+    function updateGenreTable() {
+        var rows = $("#tp-genre-rows");
+        rows.empty();
+        var keys = _.keys(genreSummary);
+        keys.sort();
+        $.each(keys, function(i, key) {
+            var count = genreSummary[key];
+            var tr = $("<tr>");
+            tr.append( $("<th>").text( key ));
+            tr.append( $("<td>").text( count ));
+            rows.append(tr);
+        });
+    }
+
+
+    function add(g) {
+        if (g in genreSummary) {
+            genreSummary[g] += 1;
+        } else {
+            genreSummary[g] = 1;
+        }
+    }
+
+    $.each(allItems, function(i, item) {
+
+        // song items don't have genres
+        if ('song_id' in item) {
+            if (! (item.artist_id in artists)) {
+                artists[item.artist_id]  = [];
+            }
+            artists[item.artist_id].push(item);
+        } else if ('artist_id' in item) {
+            // but artist items do
+            add('Summary-total-items');
+            if ('genres' in item) {
+                $.each(item.genres, function(i, g) {
+                    add(g.name);
+                });
+            } else {
+                add('Summary-no-genre');
+            }
+        }
+    });
+
+    console.log('genre summary', genreSummary);
+    console.log('need genres for', artists);
+
+    $.each(artists, function(key, songList) {
+        en.apiRequest('artist/profile', { id: key, bucket:['genre']}, 
+            function(data) {
+                add('Summary-total-items');
+                if ('genres' in data.response.artist && data.response.artist.genres.length > 0) {
+                    add('Summary-has-genre');
+                    $.each(data.response.artist.genres, function(i, g) {
+                        add(g.name);
+                    });
+                } else {
+                    add('Summary-no-genre');
+                }
+
+                updateGenreTable();
+            },
+
+            function() {
+                error("trouble fetching artist profile for genre", key);
+            }
+        );
+    });
+    return genreSummary;
+}
+
 function fetchMoreFromTasteProfile(id, start) {
     var pageSize = 100;
     var maxItems = 100000;
     info("Getting TP info ...");
-    en.catalog.read(id, start, pageSize, [],
+    en.catalog.read(id, start, pageSize, ['genre'],
         function(data) {
             var curStart = data.response.catalog.start;
             var items = data.response.catalog.items;
@@ -365,6 +476,9 @@ function fetchMoreFromTasteProfile(id, start) {
             $.each(items, 
                 function(index, item) {
                     if ('artist_id' in item) {
+                        if ('genres' in item) {
+                            console.log(item.genres);
+                        }
                         allItems.push(item);
                     } else {
                         unresolvedItems.push(item);
@@ -427,10 +541,23 @@ function processParams() {
     }
 }
 
+function initEN(key, type) {
+    en = new EchoNest(key);
+    $("#api_key").val(key);
+    $("#key-type").text(type);
+    $("#save-key").click(function() {
+        var newKey = $("#key-type").val();
+    });
+}
+
 $(document).ready(function() {
     $.ajaxSetup( {cache: false});
-    initUI();
-    processParams();
+
+    fetchApiKey(function(key, type){
+        initEN(key, type);
+        initUI();
+        processParams();
+    });
 });
 
 </script>

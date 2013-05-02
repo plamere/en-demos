@@ -192,8 +192,8 @@ function format(which, index, item) {
     var t = muted_div(hasTrack(item), item.title);
 
     var h = muted_div(which === 'song_hotttnesss', Math.round(1000 * item.song_hotttnesss));
-    var d = muted_div(which === 'discovery', Math.round(1000 * item.discovery));
-    var c = muted_div(which === 'currency', Math.round(1000 * item.currency));
+    var d = muted_div(which === 'song_discovery', Math.round(1000 * item.song_discovery));
+    var c = muted_div(which === 'song_currency', Math.round(1000 * item.song_currency));
 
     tr.append(i);
     tr.append(a);
@@ -239,18 +239,14 @@ function addSong(song) {
     if (songList.length >= maxSongs) {
         return false;
     } else if (songList.length == 0) {
-        console.log('pushed');
         songList.push(song);
     } else {
         var prev = songList.length - 1;
-        console.log('as', hasTrack(song),  prev, songList[prev].hash, song.hash, song);
         if (songList[prev].hash == song.hash) {
             if (hasTrack(song)) {
-                console.log('replaced');
                 songList[prev] = song;
             } 
         } else {
-            console.log('pushed');
             songList.push(song);
         }
     }
@@ -280,7 +276,7 @@ function fetchSongs(which, start, results) {
     var sort = which + '-desc';
     var args = {
         api_key: api_key,
-        bucket : ['id:rdio-US', 'tracks', 'song_hotttnesss', 'currency', 'discovery'],
+        bucket : ['id:rdio-US', 'tracks', 'song_hotttnesss', 'song_currency', 'song_discovery'],
         limit: false,
         start: start,
         results: results,
@@ -288,7 +284,6 @@ function fetchSongs(which, start, results) {
     };
 
 
-    console.log('FS', which, start, results, songList.length);
 
     $.getJSON(url, args, 
         function(data) {
@@ -367,12 +362,12 @@ $(document).ready(function() {
 
     $("#get-currency").click(function() {
         selectButton($(this));
-        fetchSongs('currency', 0, 10);
+        fetchSongs('song_currency', 0, 10);
     });
 
     $("#get-discovery").click(function(){
         selectButton($(this));
-        fetchSongs('discovery', 0, 10);
+        fetchSongs('song_discovery', 0, 10);
     });
 
     player = getRdioPlayer( function() {

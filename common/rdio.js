@@ -1,10 +1,13 @@
 
 
 
-function getRdioPlayer(readyCallback) {
+function getRdioPlayer(readyCallback, as) {
     var curSongIndex = 0;
     var curSongs = [];
-    var autoStop = true;
+    var autoStop = as === undefined ? true : as;
+    var callback = null;
+
+    console.log('as ', as, autoStop);
 
     function getRdioID(song) {
         var id = song.tracks[0].foreign_id;
@@ -22,8 +25,17 @@ function getRdioPlayer(readyCallback) {
             R.player.play({
                 source: rdioID
             });
+
+            if (callback) {
+                callback(song);
+            }
             $("#rp-song-title").text(song.title);
-            $("#rp-artist-name").text(song.artist_name);
+            var link = $("<a>")
+                .attr('href', 'http://static.echonest.com/echotron/?id=' + song.artist_id)
+                .attr('target', 'echotron')
+                .text(song.artist_name);
+            $("#rp-artist-name").empty();
+            $("#rp-artist-name").append(link);
         }
     }
 
@@ -66,6 +78,10 @@ function getRdioPlayer(readyCallback) {
             curSongs = songs;
         }
         playNextSong();
+    }
+
+    function setCallback(cb) {
+        callback = cb;
     }
 
     function addSongs(songs, playNow) {
@@ -134,9 +150,11 @@ function getRdioPlayer(readyCallback) {
         readyCallback();
     });
 
+
     var methods = {   
         addSongs : addSongs,
-        playSong: playSongAndAdjustIndex
+        playSong: playSongAndAdjustIndex,
+        setCallback:setCallback
     }
 
     return methods;
