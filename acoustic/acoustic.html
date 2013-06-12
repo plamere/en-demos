@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>The Echo Nest Unplugged</title>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js"></script>
+    <link type="text/css" href="acoustic_styles.css" rel="stylesheet" />
+  </head>
+
+<body>
+    <div id='content'>
+    <h1 id='title'> The Echo Nest Unplugged </h1>
+    <div class ='info'>
+        This web app creates playlists of acoustic tracks for Spotify using the Echo Nest Playlist API. Type in
+        the name of an artist, and we'll make a playlist of mostly acoustic songs by that and similar artists.
+    </div>
+
+    <br>
+    <div id='seed'>
+        <span class='box'> Seed artist:
+            <input title="Artist" type="text"  size=34 id="artist" 
+            onkeydown="if (event.keyCode == 13) go()" name="artist" value='Katy Perry'/>
+        </span>
+        <!--<button value="go" id="go" name="go"  onclick="go()"> Go </button> -->
+    </div>
+
+    <div id="info"> </div>
+    <div id="all_results">
+        <div id='tracks'>
+            <div id="results"> </div>
+        </div>
+    </div>
+   <div>
+        <p> This app relies on the <i> acoustic</i> song attribute that is calculated for millions of songs.
+        For more information on using the acoustic attribute see this blog post:
+        <a href="http://musicmachinery.com/2013/06/12/using-acousticness-to-make-unplugged-playlists/">
+        Using acousticness to make unplugged playlists</a>.
+    </div>
+    <div id='footer'> 
+        Powered by <a href="http://the.echonest.com">The Echo Nest</a> and <a href="http://spotify.com">Spotify</a>. 
+        Image (CC) by <a
+        href="http://www.flickr.com/photos/pagedooley/4848782591/in/photolist-8oth8R-dHH8pH-buMf2v-7VGYCi-9ThpUS-8pbHAH-aokAqm-9VhaWN-8FwrC8-c2fTJS-eb21mh-8mStZP-7V9pPE-dgywKR-bTx3Da-bRXwRK-7NfdTG-b4eNN8-bMc12t-8QyD4D-dHAMey-eiji2J-aPih3v-951uvn-b5wN6R-9Ae16C-9PhSQ8-8E715f-dHuSHs-dHnPMt-e1EWpy-duK1aP-dHbajW-a8rLsE-9zxdUu-darLD2-cPSS7Y-aqu2s5-8PFY7o-byi3tu-8QkCD9-89bHAJ-8Uh3U6-8R4rkR-9FaQUD-9aZ3w5-enVg4q-dMvHh4-bCZULj-dGQgEc-8GNHHY/">Kevin Dooley</a>.
+        Source on <a href="https://github.com/plamere/en-demos/tree/master/acoustic"> github</a>.  </div>
+    </div>
+</body>
+
+<script type="text/javascript">
+
+jQuery.ajaxSettings.traditional = true; 
+var host = 'http://developer.echonest.com/'
+
+var embed = '<iframe src="https://embed.spotify.com/?uri=spotify:trackset:PREFEREDTITLE:TRACKS" style="width:640px; height:520px;" frameborder="0" allowtransparency="true"></iframe>';
+
+function fetchAcousticPlaylist() {
+    var url = host + 'api/v4/playlist/static';
+    var artist = $("#artist").val();
+
+    $("#all_results").hide();
+    var args = { 
+            'artist': artist,
+            'format':'json', 
+            'bucket': [ 'id:spotify-WW', 'tracks'], 
+            'limit' : true,
+            'api_key': 'FHPFXUKUGHZWWUXPR',
+            'type' : 'artist-radio',
+            'results': 12, 
+            'min_acousticness' : .95,
+            'max_speechiness' : .65
+    }; 
+
+    info("Creating the playlist ...");
+    $.getJSON(url, args,
+            function(data) {
+                info("");
+                $("#results").empty();
+                if (! ('songs' in data.response)) {
+                    info("Can't find anything");
+                } else {
+                    $("#all_results").show();
+                    var tracks = "";
+                    for (var i = 0; i < data.response.songs.length; i++) {
+                        var song = data.response.songs[i];
+                        var tid = song.tracks[0].foreign_id.replace('spotify-WW:track:', '');
+                        tracks = tracks + tid + ',';
+                    }
+                    var tembed = embed.replace('TRACKS', tracks);
+                    tembed = tembed.replace('PREFEREDTITLE', ' Acoustic Playlist');
+                    var li = $("<span>").html(tembed);
+                    $("#results").append(li);
+                }
+            },
+
+            function() {
+                info("Trouble getting a playlist");
+            }
+        );
+}
+
+
+function go() {
+    fetchAcousticPlaylist();
+}
+
+function info(txt) {
+    $("#info").text(txt);
+}
+
+$(document).ready(function() {
+    $.ajaxSetup({ cache: false });
+    $("#all_results").hide();
+});
+</script>
+</html>
