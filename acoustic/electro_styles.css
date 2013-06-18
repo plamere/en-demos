@@ -3,10 +3,10 @@ body {
     font-family: Verdana, Helvetica, "Lucida Grande", Arial, sans-serif;
     font-size:12px;
 
-    background-image:url('acoustic-big.jpg');
+    background-image:url('electro.jpg');
     background-repeat:  no-repeat;
     background-size:  cover;
-    background-color:  #000001;
+    background-color:rgba(1, 2, 42, 1);
 
     margin:0 auto;
     color:white;
@@ -17,7 +17,7 @@ body {
 #content {
     background:#0c2998;
     background:rgb(12, 41, 152);
-    background:rgba(172, 102, 41, .9);
+    background:rgba(41, 102, 172, .8);
     margin-top:20px;
     margin-left:20px;
     margin-right:20px;
@@ -87,7 +87,6 @@ h2 {
 #debug_results  {
     margin-top: 20px;
 }
-
 
 #results-table {
     width:100%;

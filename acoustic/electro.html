@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>The Echo Nest Unplugged</title>
+    <title>The Echo Nest Plugged-In</title>
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js"></script>
-    <link type="text/css" href="acoustic_styles.css" rel="stylesheet" />
+    <link type="text/css" href="electro_styles.css" rel="stylesheet" />
   </head>
 
-<body class='acoustic'>
+<body>
     <div id='content'>
-    <h1 id='title'> The Echo Nest Unplugged </h1>
+    <h1 id='title'> The Echo Nest Plugged-in Playlist</h1>
     <div class ='info'>
-        This web app creates playlists of acoustic tracks for Spotify using the Echo Nest Playlist API. Type in
-        the name of an artist, and we'll make a playlist of mostly acoustic songs by that and similar artists.
+        This web app creates playlists of non-acoustic tracks for Spotify using the Echo Nest Playlist API. Type in
+        the name of an artist, and we'll make a playlist of mostly non-acoustic songs by that and similar artists.
     </div>
 
     <br>
@@ -27,31 +27,25 @@
     <div id="all_results">
         <table id="results-table">
             <thead>
-                <tr> <th> # <th> Artist </th> <th> Title </th>  <th> Acousticness </th>  </tr>
+                <tr> <th> # </th> <th> Artist </th> <th> Title </th>  <th> Acousticness </th>  </tr>
             </thead>
             <tbody id='all_results_body'> </tbody>
         </table>
         <div>
-        <!--
-        <center>
-        <h3><a href="https://docs.google.com/a/echonest.com/forms/d/1F3sHhcLCdaPEv83G2zdtJV9q2yh3m4QulJXissrCFlQ/viewform">
-        Report data troubles</a>
-        </center>
-        -->
         </h3>
         </div>
     </div>
    <div>
-        <p> This app relies on the <i> acoustic</i> song_type that is calculated for millions of songs.
+        <p> This app relies on the <i> electro song type</i> that is calculated for millions of songs.
         For more information on using the acoustic attribute see this blog post:
         <a href="http://musicmachinery.com/2013/06/12/using-acousticness-to-make-unplugged-playlists/">
         Using acousticness to make unplugged playlists</a>. Be sure to check out the sister app: <a
-        href="electro.html"> The Echo Nest Plugged-in</a>.
+        href="acoustic.html"> The Echo Nest Unplugged</a>.
     </div>
     <div id='footer'> 
         Powered by <a href="http://the.echonest.com">The Echo Nest</a> and <a href="http://spotify.com">Spotify</a>. 
         Image (CC) by <a
-        href="http://www.flickr.com/photos/pagedooley/4848782591/in/photolist-8oth8R-dHH8pH-buMf2v-7VGYCi-9ThpUS-8pbHAH-aokAqm-9VhaWN-8FwrC8-c2fTJS-eb21mh-8mStZP-7V9pPE-dgywKR-bTx3Da-bRXwRK-7NfdTG-b4eNN8-bMc12t-8QyD4D-dHAMey-eiji2J-aPih3v-951uvn-b5wN6R-9Ae16C-9PhSQ8-8E715f-dHuSHs-dHnPMt-e1EWpy-duK1aP-dHbajW-a8rLsE-9zxdUu-darLD2-cPSS7Y-aqu2s5-8PFY7o-byi3tu-8QkCD9-89bHAJ-8Uh3U6-8R4rkR-9FaQUD-9aZ3w5-enVg4q-dMvHh4-bCZULj-dGQgEc-8GNHHY/">Kevin Dooley</a>.
+        href="http://www.flickr.com/photos/c0ffeebreak/3240314993/in/photolist-5WksKT-5WSRh3-61q5hR-63fGBv-64fGf6-6kFkdj-6m6kgp-6pwo3n-6qm4Gh-6qSFGF-6EVcwm-6FGxXS-6Gedc6-6HE27g-6MRSbx-6PuZeN-6SSdit-6URP61-6XFJD8-6ZqvMG-7ego7P-7etree-7gBZbS-7iD1Gd-aSjNJT-boiinv-aSjNT2-aF8iN2-9nKLDu-b7RVY4-7PSHeE-9Tbuej-ba36C4-9om4Dx-bN7h2D-e47DqB-9r2DFa-7GGUeg-cA8i9G-8dK2hB-9czK6G-c7oAJ1-9DY9G2-bxduCf-7Qx73h-bxyEHA-7BpLbD-drY5TL-9KFvxe-87NPQ6-7V8PbE/">.tungl</a>.
         Source on <a href="https://github.com/plamere/en-demos/tree/master/acoustic"> github</a>.  </div>
     </div>
 </body>
@@ -74,7 +68,8 @@ function fetchAcousticPlaylist() {
             'api_key': 'FHPFXUKUGHZWWUXPR',
             'type' : 'artist-radio',
             'results': 12, 
-            'min_acousticness' : .93,
+            'min_acousticness' : .0,
+            'max_acousticness' : .05,
             'max_speechiness' : .55
     }; 
 
@@ -89,9 +84,9 @@ function fetchAcousticPlaylist() {
             'dmca' : true,
             'artist_min_familiarity' : .30,
             'song_min_hotttnesss' : .30,
-            'sort': 'acousticness-desc',
-            'min_acousticness' : .93,
-            'song_type' : 'acoustic' 
+            'max_acousticness' : .05,
+            'sort': 'acousticness-asc',
+            'song_type' : 'electric' 
     }; 
 
     var args = args_using_song_type;
@@ -110,6 +105,7 @@ function fetchAcousticPlaylist() {
                     $.each(data.response.songs, function(i, song) {
                         var row = $("<tr>");
                         var artist = make_link(song.artist_name, 
+
                                 'http://static.echonest.com/echotron/?id=' + song.artist_id, 'other');
                         var tid = song.tracks[0].foreign_id.replace('-WW', '');
                         var tid = tid.replace('-US', '');

@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
   <head>
@@ -18,13 +19,17 @@
     <div id='seed'>
         <span class='box'> Seed artist:
             <input title="Artist" type="text"  size=34 id="artist" 
-            onkeydown="if (event.keyCode == 13) go()" name="artist" value='Bob Dylan'/>
+            onkeydown="if (event.keyCode == 13) go()" name="artist" value='Katy Perry'/>
         </span>
+
     </div>
+
+    <div id="slider"> 0% <input id="slide" type="range" min="0" max="100" step="1" value="100" /> 100% </div>
 
     <div id="info"> </div>
 
     <div id="all_results">
+        <h2> This is a debugging version of the app</h2>
         <table id="results-table">
             <thead>
                 <tr> <th> # <th> Artist </th> <th> Title </th>  <th> Acousticness </th>  </tr>
@@ -32,17 +37,15 @@
             <tbody id='all_results_body'> </tbody>
         </table>
         <div>
-        <!--
         <center>
         <h3><a href="https://docs.google.com/a/echonest.com/forms/d/1F3sHhcLCdaPEv83G2zdtJV9q2yh3m4QulJXissrCFlQ/viewform">
         Report data troubles</a>
         </center>
-        -->
         </h3>
         </div>
     </div>
    <div>
-        <p> This app relies on the <i> acoustic</i> song_type that is calculated for millions of songs.
+        <p> This app relies on the <i> acoustic</i> song attribute that is calculated for millions of songs.
         For more information on using the acoustic attribute see this blog post:
         <a href="http://musicmachinery.com/2013/06/12/using-acousticness-to-make-unplugged-playlists/">
         Using acousticness to make unplugged playlists</a>. Be sure to check out the sister app: <a
@@ -66,7 +69,7 @@ function fetchAcousticPlaylist() {
     var artist = $("#artist").val();
 
     $("#all_results").hide();
-    var args_using_params = { 
+    var args = { 
             'artist': artist,
             'format':'json', 
             'bucket': [ 'id:spotify-US', 'tracks', 'audio_summary'], 
@@ -77,24 +80,6 @@ function fetchAcousticPlaylist() {
             'min_acousticness' : .93,
             'max_speechiness' : .55
     }; 
-
-    var args_using_song_type  = { 
-            'artist': artist,
-            'format':'json', 
-            'bucket': [ 'id:spotify-US', 'tracks', 'audio_summary'], 
-            'limit' : true,
-            'api_key': 'FHPFXUKUGHZWWUXPR',
-            'type' : 'artist-radio',
-            'results': 12, 
-            'dmca' : true,
-            'artist_min_familiarity' : .30,
-            'song_min_hotttnesss' : .30,
-            'sort': 'acousticness-desc',
-            'min_acousticness' : .93,
-            'song_type' : 'acoustic' 
-    }; 
-
-    var args = args_using_song_type;
 
     info("Creating the playlist ...");
     $.getJSON(url, args,
