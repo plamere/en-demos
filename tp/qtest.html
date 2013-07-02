@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Taste Profile Demo</title>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css" rel="stylesheet">
+    <script src="../common/jquery.cookie.js" type="text/javascript" charset="utf-8"></script>
+    <script src="../common/echonest.js" type="text/javascript" charset="utf-8"></script>
+    <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
+    <script src="https://rdio.com/api/api.js?client_id=MyEs2fjx1VTs-tZLQzDUuQ"></script>
+    <script type="text/javascript" src="../common/get_key_with_callback.js"></script>
+    <style>
+        #go {
+            margin-top:-8px;
+            margin-right: 20px;
+        }
+
+        #bottom-buttons {
+            margin-top:4px;
+            width:280px;
+        }
+
+        #titles {
+            margin-left:30px;
+            margin-bottom:10px;
+        }
+
+        #rp-album-art {
+            height:280px;
+        }
+
+        #info-container {
+            margin-top:20px;
+            min-height:40px;
+            margin-bottom:20px;
+        }
+
+        #tp-buttons {
+            margin-top:20px;
+            margin-bottom:20px;
+        }
+
+        #change-station {
+            margin-top:20px;
+            margin-bottom:20px;
+        }
+
+    </style>
+  </head>
+
+<body>
+
+<div id="resetModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+        <h3 id="myModalLabel"> Reset your taste!</h3>
+    </div>
+    <div class="modal-body">
+        <span class="label label-warning"> Warning </span>
+        This will delete all of your music taste data. Are you really sure that you want to do this?
+    </div>
+
+    <div class="modal-footer">
+        <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+        <button type="button" id="reset-taste" class="btn btn-danger">Delete your taste data</button>
+    </div>
+</div>
+
+<div id="restartModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="changeModalLabel" aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+        <h3 id="changeModalLabel"> New Station </h3>
+    </div>
+    <div class="modal-body">
+        <label> Type in the name of an artist to change the station to music by that artist and other similar artists.</label>
+        <input id="seed-artist" type="text" class="input-large" placeholder="an artist name" </input>
+    </div>
+
+    <div class="modal-footer">
+        <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+        <button type="button" id="restart-station" class="btn btn-primary">Go </button>
+    </div>
+</div>
+
+
+<div id="wrap" class="navbar navbar-inverse">
+  <div class="navbar-inner">
+    <div class="container">
+        <a id='show-search' class="brand">Taste Profile Demo</a>
+        <ul class="nav">
+          <li class="nav-choice active"><a id='show-main'>Main</a></li>
+          <li class="nav-choice"><a href="https://github.com/plamere/en-demos/blob/master/tp/">The Source</a></li>
+          <li class="nav-choice"><a href="http://developer.echonest.com/docs/v4/catalog.html">Taste Profile API</a></li>
+        </ul>
+        <ul class="nav pull-right">
+          <li class="nav-choice"><a href="http://static.echonest.com/labs">Labs</a></li>
+          <li class="nav-choice"><a href="http://static.echonest.com/labs/demo.html">Demos</a></li>
+          <li class="nav-choice"><a href="http://developer.echonest.com">developer.echonest.com</a></li>
+        </ul>
+    </div>
+  </div>
+</div>
+
+    <div class="container">
+        <div id="the-form" class="span10 well">
+            <h1> Taste Profile Demo</h1>
+            <p class=""> Maintain your taste in an Echo Nest Taste Profile and use this profile to generate a personalized
+                radio station.</p>
+            <div id="create">
+                <h4> Create a taste profile </h4>
+                <input id="artists" type="text" class="input-xxlarge" placeholder="Enter comma separated artist names  ..." </input>
+                <button class="btn btn-primary" id="go"> Go </button>
+                <div id="status" class="hide">
+                    <div class="progress progress-striped">
+                        <div id='progress-bar' class="bar"> </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    <div id="the-player" class="row span10 well">
+      <div id="titles">
+        <h4 id='rp-song-title'></h4> 
+        <div  id='rp-artist-name'></div> 
+      </div>
+      <div id="rp-now-playing" class="span5 ">
+        <img id="rp-album-art">
+          <div id='bottom-buttons'>
+              <div id='button-panel' class='btn-group'>
+                  <button id='rp-pause-play' rel='tooltip' title='play/pause the song'
+                    class="btn btn-primary btn-small"><i class="icon-white icon-play"></i></button>
+                  <button id='rp-next' rel='tooltip' title='go to the next song', 
+                    class="btn btn-primary btn-small"><i class="icon-white icon-forward"></i></button>
+              </div>
+
+            <div class='btn-group pull-right'>
+                <button  id="bad-song" rel="tooltip"  title="I don't like this song"
+                    class="btn btn-danger btn-small"><i class="icon-white icon-thumbs-down"></i></button>
+                </button>
+                <button  id="good-song" rel="tooltip"  title="I like this song"
+                    class="btn btn-success btn-small"><i class="icon-white icon-thumbs-up"></i></button>
+                </button>
+            </div>
+          </div>
+        <div id="info-extra"> </div>
+      </div>
+    <div id="more-info" class="span4">
+        <div id='tp-buttons'>
+            <button class='btn btn-primary' id='view-tp'> View Profile </button>
+            <a class='btn btn-danger' href="#resetModal" data-toggle="modal"> Reset Profile </a>
+            <button class='btn btn-primary' id='view-station'> View Station </button>
+            <a class='btn btn-primary' id="change-station" href="#restartModal" data-toggle="modal"> New Station</a>
+        </div>
+        <div id="info-container">
+            <div id="info" class=""> </div>
+        </div> 
+        <h4> Up Next </h4>
+        <div id="up-next" class=""> </div>
+      
+
+    </div>
+  </div>
+  <div class="container span8 offset1">
+    <small>
+    Powered by <a href="http://echonest.com">The Echo Nest</a> and <a href="http://rdio.com">Rdio</a>. 
+    </small>
+  </div>
+
+
+<script type="text/javascript">
+
+jQuery.ajaxSettings.traditional = true; 
+var api_key = 'NO_API_KEY'
+var curSong = null;
+var maxTimeForSkip = 3000;
+var cookieOpts = {expires:365, path: '/' };
+var catalogID = 'CALQHEI13DB585AFEA';
+var en = new EchoNest(api_key);
+en.end_point = 'http://bos-vs020/api/v4/';
+
+
+function info(s) {
+    $("#info").removeClass();
+    if (s.length > 0) {
+        $("#info").addClass("alert alert-info");
+    }
+    $("#info").text(s);
+}
+
+function tinfo(s) {
+    info(s);
+    setTimeout( function() { info(""); }, 5000);
+}
+
+function error(s) {
+    $("#info").removeClass();
+    if (s.length > 0) {
+        $("#info").addClass("alert alert-error");
+    }
+    $("#info").text(s);
+}
+
+function terror(s) {
+    error(s);
+    setTimeout( function() { error(""); }, 5000);
+}
+
+function getRdioID(song) {
+    var id = song.tracks[0].foreign_id;
+    var rawID = id.split(':')[2]
+    return rawID;
+}
+
+function playSong(song) {
+    var rdioID = getRdioID(song);
+    curSong = song;
+    R.player.play({
+        source: rdioID
+    });
+    $("#rp-song-title").text(song.title);
+    $("#rp-artist-name").text(song.artist_name);
+    document.title = song.artist_name;
+}
+
+function playNextSong() {
+    fetchNextTrack();
+}
+
+function fetchNextTrack() {
+    en.playlist.nextSong(1, 5,
+        function(data) {
+            if (data.response.songs.length > 0) {
+                playSong(data.response.songs[0]);
+            } else {
+                info("No more songs to play on this station");
+            }
+
+            $("#up-next").empty();
+            var names = [];
+
+            $.each(data.response.lookahead, 
+                function(index, song) {
+                    names.push(song.artist_name);
+                }
+            );
+            var all = names.join(', ');
+            $("#up-next").append(all);
+        },
+        function() {
+            error("Trouble getting the next track on this station");
+        }
+    );
+}
+
+function createDynamicPlaylist() {
+    tinfo("Creating the playlist ...");
+
+    var args = {
+        'bucket': [ 'id:rdio-US', 'tracks'], 'limit' : true,
+        'type':'catalog-radio',
+        'seed_catalog' : catalogID,
+        'session_catalog' : catalogID,
+    };
+
+    en.playlist.create(args,
+        function(data) {
+            fetchNextTrack();
+        },
+        function() {
+            error("Trouble creating playlist session");
+        }
+    );
+}
+
+function restartDynamicPlaylistWithSeed(artistName) {
+    tinfo("Changing the seed to " + artistName + " ...");
+
+    var args = {
+        'bucket': [ 'id:rdio-US', 'tracks'], 'limit' : true,
+        'type':'catalog-radio',
+        'seed_catalog' : catalogID,
+        'session_catalog' : catalogID,
+        'adventurousness' : .9,
+        'artist': artistName
+    };
+
+    en.playlist.restart(args,
+        function(data) {
+            fetchNextTrack();
+        },
+        function() {
+            error("Trouble restarting playlist session");
+        }
+    );
+}
+
+function badSong() {
+    terror("banning  " + curSong.artist_name);
+    en.playlist.feedback('ban_artist', curSong.artist_id,
+        function(data) {
+            terror("banned songs by " + curSong.artist_name);
+            playNextSong();
+        },
+        function() {
+            error("Trouble flagging that as a bad song");
+        }
+    );
+}
+
+function skipSong() {
+    tinfo("skipping  " + curSong.title);
+    en.playlist.feedback('skip_song', curSong.id,
+        function(data) {
+            tinfo("skipped " + curSong.title);
+            playNextSong();
+        },
+        function() {
+            error("Trouble skipping song");
+        }
+    );
+}
+
+function goodSong() {
+    var args = { 
+        favorite_artist: curSong.artist_id,
+        favorite_song: curSong.id
+    };
+    tinfo("Favoriting  " + curSong.artist_name);
+    en.playlist.multifeedback(args,
+        function(data) {
+            $("#up-next").text("a surprise ...");
+            tinfo("favorited song by " + curSong.artist_name);
+        },
+        function() {
+            terror("Trouble giving feedback");
+        }
+    );
+}
+
+function now() {
+    return new Date().getTime();
+}
+
+function startPlaying() {
+    $("#create").hide();
+    $("#the-player").show();
+    createDynamicPlaylist();
+}
+
+function needCatalog() {
+    $("#create").show();
+    $("#status").hide();
+    R.player.pause();
+    $("#the-player").hide();
+}
+
+function checkForCatalog() {
+    // if have a catalog, start playing music
+    var catalog = $.cookie('tpdemo_catalog_id');
+    if (catalog) {
+        catalogID = catalog;
+        tinfo("Found your taste profile, creating a playlist");
+        startPlaying();
+    } else {
+    }
+}
+
+
+function createTasteProfile() {
+    var blocks = getArtistUpdateBlock();
+
+    if (blocks.length <= 2) {
+        alert("Sorry, need at least 3 artists. More is better");
+    } else {
+        info("Creating your very own Taste Profile");
+        var catName = 'manual-' + Math.round(Math.random() * 10000000);
+        en.catalog.create(catName, 
+            function(data) {
+                var catalogID = data.response.id;
+                updateTasteProfile(catalogID, blocks);
+            },
+
+            function(data) {
+                error("Couldn't create catalog " + catName);
+            }
+        );
+    }
+}
+
+function getArtistUpdateBlock() {
+    var artists = $("#artists").val();
+    artists = artists.split(",");
+    var blocks = [];
+    $.each(artists, 
+        function(index, artist) {
+            var artist = $.trim(artist);
+            var item = {
+                action : 'update',
+                item : {
+                    item_id : 'item-' + index,
+                    artist_name: artist,
+                    favorite : true
+                }
+            }
+            blocks.push(item);
+        }
+    );
+
+    var kv = {
+            action : "update",
+            catalog_keyvalues: {
+                 gender: 'm',
+                 zipcode: '03064',
+                 qa_qa: 'yes',
+            }
+        }
+    blocks.push(kv)
+    console.log(blocks);
+    return blocks;
+}
+
+function updateTasteProfile(id, blocks) {
+    var progressBar = $("#progress-bar");
+    info("Uploading your taste to The Echo Nest");
+    progressBar.css('width', '20%');
+
+    en.catalog.addArtists(id, blocks,
+        function(data) {
+            var ticket = data.response.ticket;
+            en.catalog.pollForStatus(ticket, 
+                function(data) {
+                    if (data.response.ticket_status === 'pending') {
+                        var percent = 20 + Math.round(80 * data.response.percent_complete / 100.0)
+                        info("Resolving artists " + percent + " % complete");
+                        progressBar.css('width', percent  + '%');
+                    } else if (data.response.ticket_status === 'complete') {
+                        progressBar.css('width', '100%');
+                        info("Done!");
+                        tasteProfileReady(id);
+                    } else {
+                        error("Can't resolve taste profile " + data.response.details);
+                    }
+                },
+                function() {
+                    error("Trouble waiting for catalog");
+                }
+            );
+        },
+        
+        function(data) {
+            error("Trouble adding artists to catalog");
+        });
+}
+
+function tasteProfileReady(id) {
+    info("We've got everything we need, here we go ...");
+    catalogID = id;
+    $.cookie('tpdemo_catalog_id', id, {expires:365, path: '/' });
+    startPlaying();
+}
+
+
+function resetTaste() {
+    $.removeCookie('tpdemo_catalog_id', cookieOpts);
+    en.catalog.delete(catalogID,
+        function() {
+            info("Your taste has been deleted");
+        },
+
+        function(data) {
+            error('trouble deleting catalog ', data);
+        }
+    );
+    setTimeout(function() {
+        needCatalog();
+        $('#resetModal').modal('hide')
+    }, 500);
+}
+
+
+
+function initUI() {
+    $("#the-player").hide();
+    $("#artists").keydown(
+        function(){
+            if (event.keyCode == 13) {
+                $("#status").show();
+                createTasteProfile();
+            }
+        });
+
+    $("#bad-song").click(badSong);
+    $("#good-song").click(goodSong);
+
+    $("#go").click( 
+        function() {
+            $("#status").show();
+            createTasteProfile();
+        }
+    );
+
+   $("#reset-taste").click(resetTaste);
+
+   $("#view-tp").click(
+        function() {
+            var url = 'tpview.html?id=' + catalogID;
+            window.open(url, 'ViewData');
+        }
+    );
+
+
+   $("#view-station").click(
+        function() {
+            var url = 'dpview.html?id=' + en.playlist.sessionID;
+            window.open(url, 'ViewData');
+        }
+    );
+
+    $("#restart-station").click(function() {
+        var artist = $("#seed-artist").val();
+        if (artist.length > 0) {
+            restartDynamicPlaylistWithSeed(artist);
+            $('#restartModal').modal('hide')
+        }
+    });
+
+    $("#seed-artist").keydown(
+        function(){
+            if (event.keyCode == 13) {
+                var artist = $("#seed-artist").val();
+                if (artist.length > 0) {
+                    restartDynamicPlaylistWithSeed(artist);
+                    $('#restartModal').modal('hide')
+                }
+            }
+        });
+
+}
+
+$(document).ready(function() {
+    fetchApiKey( function(key, isLoggedIn) {
+        var trackStartTime = now();
+
+        api_key = key;
+
+        $.ajaxSetup( {cache: false});
+        initUI();
+        R.ready(function() {
+            R.player.on("change:playingTrack", function(track) {
+                if (track) {
+                    var image = track.attributes.icon;
+                    $("#rp-album-art").attr('src', image);
+                    trackStartTime = now();
+                } else {
+                    playNextSong();
+                }
+            });
+
+            R.player.on("change:playState", function(state) {
+                if (state == R.player.PLAYSTATE_PAUSED) {
+                    $("#rp-pause-play i").removeClass("icon-pause");
+                    $("#rp-pause-play i").addClass("icon-play");
+                }
+                if (state == R.player.PLAYSTATE_PLAYING) {
+                    $("#rp-pause-play i").removeClass("icon-play");
+                    $("#rp-pause-play i").addClass("icon-pause");
+                }
+            });
+
+            R.player.on("change:playingSource", function(track) {});
+
+            $("#rp-pause-play").click(function() {
+                R.player.togglePause();
+            });
+
+            $("#rp-next").click(function() {
+                var delta = now() - trackStartTime;
+                if (delta < maxTimeForSkip) {
+                    skipSong();
+                } else {
+                    playNextSong();
+                }
+            });
+            checkForCatalog();
+        });
+    });
+});
+
+</script>
+</body>
+</html>
