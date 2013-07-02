@@ -3,6 +3,7 @@
   <head>
     <title>We are doing it live!</title>
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js"></script>
+    <script type="text/javascript" src="../common/get_key_with_callback.js"></script>
     <link type="text/css" href="live_styles.css" rel="stylesheet" />
   </head>
 
@@ -41,12 +42,13 @@
 
 jQuery.ajaxSettings.traditional = true; 
 var host = 'http://developer.echonest.com/'
+var apiKey = 'NO_API_KEY';
 
 var embed = '<iframe src="https://embed.spotify.com/?uri=spotify:trackset:PREFEREDTITLE:TRACKS" style="width:640px; height:520px;" frameborder="0" allowtransparency="true"></iframe>';
 
 
 function fetchArtistPlaylist(artist,  wandering, variety) {
-    var url = host + 'api/v4/playlist/static?api_key=FHPFXUKUGHZWWUXPR&callback=?';
+    var url = host + 'api/v4/playlist/static?api_key=' + apiKey + '&callback=?';
 
     $("#all_results").hide();
     info("Creating the playlist ...");
@@ -87,7 +89,10 @@ function info(txt) {
 }
 
 $(document).ready(function() {
-    $("#all_results").hide();
+    fetchApiKey( function(api_key, isLoggedIn) {
+        apiKey = api_key;
+        $("#all_results").hide();
+    });
 });
 </script>
 </html>

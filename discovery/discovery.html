@@ -6,8 +6,9 @@
     <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css" rel="stylesheet">
     <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
     <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-responsive.min.css" rel="stylesheet">
+    <script type="text/javascript" src="../common/get_key_with_callback.js"></script>
     <script src="https://rdio.com/api/api.js?client_id=ndS-G2UAc7dQj90nkoYW2w"></script>
-    <script src="rdio.js" type="text/javascript"></script>
+    <script src="../common/rdio.js" type="text/javascript"></script>
     <style>
         #button-panel {
             margin-top:4px;
@@ -161,7 +162,7 @@
 <script type="text/javascript">
 
 jQuery.ajaxSettings.traditional = true; 
-var api_key = 'FHPFXUKUGHZWWUXPR';
+var apiKey = 'NO_API_KEY';
 var player = null;  // the rdio interface
 var songList = [];  // list of top hottt songs
 var dups = {};      // used to eliminate dup songs
@@ -275,7 +276,7 @@ function fetchSongs(which, start, results) {
       
     var sort = which + '-desc';
     var args = {
-        api_key: api_key,
+        api_key: apiKey,
         bucket : ['id:rdio-US', 'tracks', 'song_hotttnesss', 'song_currency', 'song_discovery'],
         limit: false,
         start: start,
@@ -351,38 +352,41 @@ function selectButton(which) {
 
 $(document).ready(function() {
     $.ajaxSetup({ cache: false });
-    $("#all_results").hide();
-    $("#play-all").click(playAll);
-    $("#get-hottt").click(function() {
-        $(".go-buttons").removeClass('btn-primary');
-        selectButton($(this));
-        fetchSongs('song_hotttnesss', 0, 10);
-    });
-    selectButton($("#get-hottt"));
-
-    $("#get-currency").click(function() {
-        selectButton($(this));
-        fetchSongs('song_currency', 0, 10);
-    });
-
-    $("#get-discovery").click(function(){
-        selectButton($(this));
-        fetchSongs('song_discovery', 0, 10);
-    });
-
-    player = getRdioPlayer( function() {
-        var lastTid = null;
-
-        R.player.on("change:playingTrack", function(track) {
-            var tid = track.attributes.key;
-
-            if (lastTid) {
-                tdivs[lastTid].removeClass("info");
-            }
-            lastTid = tid;
-            tdivs[tid].addClass("info");
+    fetchApiKey( function(api_key, isLoggedIn) {
+        apiKey = api_key;
+        $("#all_results").hide();
+        $("#play-all").click(playAll);
+        $("#get-hottt").click(function() {
+            $(".go-buttons").removeClass('btn-primary');
+            selectButton($(this));
+            fetchSongs('song_hotttnesss', 0, 10);
         });
-        fetchSongs('song_hotttnesss', 0, 10);
+        selectButton($("#get-hottt"));
+
+        $("#get-currency").click(function() {
+            selectButton($(this));
+            fetchSongs('song_currency', 0, 10);
+        });
+
+        $("#get-discovery").click(function(){
+            selectButton($(this));
+            fetchSongs('song_discovery', 0, 10);
+        });
+
+        player = getRdioPlayer( function() {
+            var lastTid = null;
+
+            R.player.on("change:playingTrack", function(track) {
+                var tid = track.attributes.key;
+
+                if (lastTid) {
+                    tdivs[lastTid].removeClass("info");
+                }
+                lastTid = tid;
+                tdivs[tid].addClass("info");
+            });
+            fetchSongs('song_hotttnesss', 0, 10);
+        });
     });
 });
 

@@ -1,1 +1,1 @@
-s3cmd sync --acl-public  */*.gif */*.jpg */*.png */*.html */*.js */*.css  s3://static.echonest.com/demo/
+s3cmd sync --exclude '.git/*' --acl-public .  s3://static.echonest.com/demo3/

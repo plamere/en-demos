@@ -4,6 +4,7 @@
     <title>The Echo Nest Unplugged</title>
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js"></script>
     <link type="text/css" href="acoustic_styles.css" rel="stylesheet" />
+    <script type="text/javascript" src="../common/get_key_with_callback.js"></script>
   </head>
 
 <body class='acoustic'>
@@ -44,8 +45,8 @@
    <div>
         <p> This app relies on the <i> acoustic</i> song_type that is calculated for millions of songs.
         For more information on using the acoustic attribute see this blog post:
-        <a href="http://musicmachinery.com/2013/06/12/using-acousticness-to-make-unplugged-playlists/">
-        Using acousticness to make unplugged playlists</a>. Be sure to check out the sister app: <a
+        <a href="http://blog.echonest.com/post/53511313353/new-audio-attribute-acousticness">
+        New audio attribute - Acousticness</a>. Be sure to check out the sister app: <a
         href="electro.html"> The Echo Nest Plugged-in</a>.
     </div>
     <div id='footer'> 
@@ -60,6 +61,7 @@
 
 jQuery.ajaxSettings.traditional = true; 
 var host = 'http://developer.echonest.com/'
+var apiKey = 'NO_API_KEY';
 
 function fetchAcousticPlaylist() {
     var url = host + 'api/v4/playlist/static';
@@ -71,7 +73,7 @@ function fetchAcousticPlaylist() {
             'format':'json', 
             'bucket': [ 'id:spotify-US', 'tracks', 'audio_summary'], 
             'limit' : true,
-            'api_key': 'FHPFXUKUGHZWWUXPR',
+            'api_key': apiKey,
             'type' : 'artist-radio',
             'results': 12, 
             'min_acousticness' : .93,
@@ -83,7 +85,7 @@ function fetchAcousticPlaylist() {
             'format':'json', 
             'bucket': [ 'id:spotify-US', 'tracks', 'audio_summary'], 
             'limit' : true,
-            'api_key': 'FHPFXUKUGHZWWUXPR',
+            'api_key': apiKey,
             'type' : 'artist-radio',
             'results': 12, 
             'dmca' : true,
@@ -151,8 +153,11 @@ function info(txt) {
 }
 
 $(document).ready(function() {
-    $.ajaxSetup({ cache: false });
-    $("#all_results").hide();
+    fetchApiKey( function(api_key, isLoggedIn) {
+        apiKey = api_key;
+        $.ajaxSetup({ cache: false });
+        $("#all_results").hide();
+    });
 });
 </script>
 </html>

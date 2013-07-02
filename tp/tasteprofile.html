@@ -4,10 +4,11 @@
     <title>Taste Profile Demo</title>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
     <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css" rel="stylesheet">
-    <script src="jquery.cookie.js" type="text/javascript" charset="utf-8"></script>
-    <script src="echonest.js" type="text/javascript" charset="utf-8"></script>
+    <script src="../common/jquery.cookie.js" type="text/javascript" charset="utf-8"></script>
+    <script src="../common/echonest.js" type="text/javascript" charset="utf-8"></script>
     <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
-    <script src="https://rdio.com/api/api.js?client_id=MyEs2fjx1VTs-tZLQzDUuQ"></script>
+    <script src="https://rdio.com/api/api.js?client_id=ndS-G2UAc7dQj90nkoYW2w"></script>
+    <script type="text/javascript" src="../common/get_key_with_callback.js"></script>
     <style>
         #go {
             margin-top:-8px;
@@ -170,12 +171,12 @@
 <script type="text/javascript">
 
 jQuery.ajaxSettings.traditional = true; 
-var api_key = 'FHPFXUKUGHZWWUXPR';
+var api_key = 'NO_API_KEY';
+var en;
 var curSong = null;
 var maxTimeForSkip = 3000;
 var cookieOpts = {expires:365, path: '/' };
 var catalogID = 'CALQHEI13DB585AFEA';
-var en = new EchoNest(api_key);
 
 
 function info(s) {
@@ -526,47 +527,51 @@ function initUI() {
 }
 
 $(document).ready(function() {
-    var trackStartTime = now();
+    fetchApiKey( function(key, isLoggedIn) {
+        var trackStartTime = now();
 
-    $.ajaxSetup( {cache: false});
-    initUI();
-    R.ready(function() {
-        R.player.on("change:playingTrack", function(track) {
-            if (track) {
-                var image = track.attributes.icon;
-                $("#rp-album-art").attr('src', image);
-                trackStartTime = now();
-            } else {
-                playNextSong();
-            }
+        api_key = key;
+        en = new EchoNest(api_key);
+        $.ajaxSetup( {cache: false});
+        initUI();
+        R.ready(function() {
+            R.player.on("change:playingTrack", function(track) {
+                if (track) {
+                    var image = track.attributes.icon;
+                    $("#rp-album-art").attr('src', image);
+                    trackStartTime = now();
+                } else {
+                    playNextSong();
+                }
+            });
+
+            R.player.on("change:playState", function(state) {
+                if (state == R.player.PLAYSTATE_PAUSED) {
+                    $("#rp-pause-play i").removeClass("icon-pause");
+                    $("#rp-pause-play i").addClass("icon-play");
+                }
+                if (state == R.player.PLAYSTATE_PLAYING) {
+                    $("#rp-pause-play i").removeClass("icon-play");
+                    $("#rp-pause-play i").addClass("icon-pause");
+                }
+            });
+
+            R.player.on("change:playingSource", function(track) {});
+
+            $("#rp-pause-play").click(function() {
+                R.player.togglePause();
+            });
+
+            $("#rp-next").click(function() {
+                var delta = now() - trackStartTime;
+                if (delta < maxTimeForSkip) {
+                    skipSong();
+                } else {
+                    playNextSong();
+                }
+            });
+            checkForCatalog();
         });
-
-        R.player.on("change:playState", function(state) {
-            if (state == R.player.PLAYSTATE_PAUSED) {
-                $("#rp-pause-play i").removeClass("icon-pause");
-                $("#rp-pause-play i").addClass("icon-play");
-            }
-            if (state == R.player.PLAYSTATE_PLAYING) {
-                $("#rp-pause-play i").removeClass("icon-play");
-                $("#rp-pause-play i").addClass("icon-pause");
-            }
-        });
-
-        R.player.on("change:playingSource", function(track) {});
-
-        $("#rp-pause-play").click(function() {
-            R.player.togglePause();
-        });
-
-        $("#rp-next").click(function() {
-            var delta = now() - trackStartTime;
-            if (delta < maxTimeForSkip) {
-                skipSong();
-            } else {
-                playNextSong();
-            }
-        });
-        checkForCatalog();
     });
 });
 

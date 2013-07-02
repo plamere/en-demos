@@ -5,6 +5,7 @@
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
     <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css" rel="stylesheet">
     <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../common/get_key_with_callback.js"></script>
     <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-responsive.min.css" rel="stylesheet">
      <style>
         .image-container {
@@ -56,13 +57,14 @@
 <script type="text/javascript">
 
 jQuery.ajaxSettings.traditional = true; 
+var apiKey = 'NO_API_KEY';
 
 function fetchImages(artist) {
     var url = 'http://developer.echonest.com/api/v4/artist/images';
 
     var args = { 
             format:'json', 
-            api_key: 'FHPFXUKUGHZWWUXPR',
+            api_key: apiKey,
             name: artist,
             results: 100, 
     }; 
@@ -70,7 +72,6 @@ function fetchImages(artist) {
     info("Fetching images for " + artist);
     $.getJSON(url, args,
             function(data) {
-                console.log(data);
                 $("#results").empty();
                 if (! ('images' in data.response)) {
                     error("Can't find any images for " + artist);
@@ -137,8 +138,11 @@ function error(s) {
 }
     
 $(document).ready(function() {
-    $("#go").click(go);
-    $("#artist").change(go);
+    fetchApiKey( function(api_key, isLoggedIn) {
+        apiKey = api_key;
+        $("#go").click(go);
+        $("#artist").change(go);
+    });
 });
 
 </script>

@@ -6,6 +6,7 @@
     <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css" rel="stylesheet">
     <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
     <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-responsive.min.css" rel="stylesheet">
+    <script type="text/javascript" src="../common/get_key_with_callback.js"></script>
   </head>
 
 <body>
@@ -44,6 +45,7 @@
 
 <script type="text/javascript">
 
+var apiKey = 'NO_API_KEY';
 jQuery.ajaxSettings.traditional = true; 
 
 function fetchBlogs(artist, highRelevance) {
@@ -52,7 +54,7 @@ function fetchBlogs(artist, highRelevance) {
     $("#results").hide();
     var args = { 
             format:'json', 
-            api_key: 'FHPFXUKUGHZWWUXPR',
+            api_key: apiKey,
             name: artist,
             results: 100, 
             high_relevance: highRelevance, 
@@ -137,9 +139,12 @@ function error(s) {
 
 
 $(document).ready(function() {
-    $("#all_results").hide();
-    $("#go").click(go);
-    $("#artist").change(go);
+    fetchApiKey( function(api_key, isLoggedIn) {
+        apiKey = api_key;
+        $("#all_results").hide();
+        $("#go").click(go);
+        $("#artist").change(go);
+    });
 });
 
 </script>

@@ -7,7 +7,8 @@
     <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
     <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-responsive.min.css" rel="stylesheet">
     <script src="https://rdio.com/api/api.js?client_id=ndS-G2UAc7dQj90nkoYW2w"></script>
-    <script src="rdio.js" type="text/javascript"></script>
+    <script type="text/javascript" src="../common/get_key_with_callback.js"></script>
+    <script src="../common/rdio.js" type="text/javascript"></script>
     <style>
         .artist-play-button {
             margin-right:8px;
@@ -130,7 +131,7 @@
 <script type="text/javascript">
 
 jQuery.ajaxSettings.traditional = true; 
-var api_key = 'FHPFXUKUGHZWWUXPR';
+var api_key = 'NO_API_KEY';
 var player = null;  // the rdio interface
 var songList = [];  // list of top hottt songs
 var dups = {};      // used to eliminate dup songs
@@ -254,23 +255,26 @@ function error(s) {
 
 
 $(document).ready(function() {
-    $.ajaxSetup({ cache: false });
-    $("#all_results").hide();
-    $("#play-all").click(playAll);
+    fetchApiKey( function(key, isLoggedIn) {
+        api_key = key;
+        $.ajaxSetup({ cache: false });
+        $("#all_results").hide();
+        $("#play-all").click(playAll);
 
-    player = getRdioPlayer( function() {
-        var lastTid = null;
+        player = getRdioPlayer( function() {
+            var lastTid = null;
 
-        R.player.on("change:playingTrack", function(track) {
-            var tid = track.attributes.key;
+            R.player.on("change:playingTrack", function(track) {
+                var tid = track.attributes.key;
 
-            if (lastTid) {
-                tdivs[lastTid].removeClass("info");
-            }
-            lastTid = tid;
-            tdivs[tid].addClass("info");
+                if (lastTid) {
+                    tdivs[lastTid].removeClass("info");
+                }
+                lastTid = tid;
+                tdivs[tid].addClass("info");
+            });
+            fetchSongs(0, 10);
         });
-        fetchSongs(0, 10);
     });
 });
 

@@ -6,9 +6,10 @@
     <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css" rel="stylesheet">
     <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
     <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-responsive.min.css" rel="stylesheet">
-    <script type="text/javascript" src="date.format.js"></script> 
+    <script type="text/javascript" src="../common/date.format.js"></script> 
     <script src="https://rdio.com/api/api.js?client_id=P8QAySiG3513JG_YhhMYmQ"></script>
-    <script src="rdio.js" type="text/javascript"></script>
+    <script src="../common/rdio.js" type="text/javascript"></script>
+    <script type="text/javascript" src="../common/get_key_with_callback.js"></script>
     <style>
         .artist-play-button {
             margin-right:8px;
@@ -130,7 +131,7 @@
 <script type="text/javascript">
 
 jQuery.ajaxSettings.traditional = true; 
-var api_key = 'FHPFXUKUGHZWWUXPR';
+var api_key = 'NO_API_KEY';
 var player = null;
 var curArtist = null;
 
@@ -371,22 +372,25 @@ function newSong(song) {
 }
 
 $(document).ready(function() {
-    $.ajaxSetup({ cache: false });
-    $("#results").hide();
-    $("#go").click(function() {
-        go();
-    });
-
-    $("#location").keydown(
-        function(){
-            if (event.keyCode == 13) {
-                go();
-            }
+    fetchApiKey( function(key, isLoggedIn) {
+        api_key = key;
+        $.ajaxSetup({ cache: false });
+        $("#results").hide();
+        $("#go").click(function() {
+            go();
         });
 
-    player = getRdioPlayer( function() {
-        player.setCallback(newSong);
-    }, false);
+        $("#location").keydown(
+            function(){
+                if (event.keyCode == 13) {
+                    go();
+                }
+            });
+
+        player = getRdioPlayer( function() {
+            player.setCallback(newSong);
+        }, false);
+    });
 });
 
 </script>

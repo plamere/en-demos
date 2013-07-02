@@ -5,6 +5,7 @@
     <title>The Echo Nest Unplugged</title>
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js"></script>
     <link type="text/css" href="acoustic_styles.css" rel="stylesheet" />
+    <script type="text/javascript" src="../common/get_key_with_callback.js"></script>
   </head>
 
 <body class='acoustic'>
@@ -63,6 +64,7 @@
 
 jQuery.ajaxSettings.traditional = true; 
 var host = 'http://developer.echonest.com/'
+var apiKey = 'NO_API_KEY';
 
 function fetchAcousticPlaylist() {
     var url = host + 'api/v4/playlist/static';
@@ -74,7 +76,7 @@ function fetchAcousticPlaylist() {
             'format':'json', 
             'bucket': [ 'id:spotify-US', 'tracks', 'audio_summary'], 
             'limit' : true,
-            'api_key': 'FHPFXUKUGHZWWUXPR',
+            'api_key': apiKey,
             'type' : 'artist-radio',
             'results': 12, 
             'min_acousticness' : .93,
@@ -136,8 +138,11 @@ function info(txt) {
 }
 
 $(document).ready(function() {
-    $.ajaxSetup({ cache: false });
-    $("#all_results").hide();
+    fetchApiKey( function(api_key, isLoggedIn) {
+        apiKey = api_key;
+        $.ajaxSetup({ cache: false });
+        $("#all_results").hide();
+    });
 });
 </script>
 </html>

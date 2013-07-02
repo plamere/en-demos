@@ -4,12 +4,12 @@
     <title>Taste Profile Viewer</title>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
     <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css" rel="stylesheet">
-    <script src="jquery.cookie.js" type="text/javascript" charset="utf-8"></script>
-    <script src="underscore-min.js" type="text/javascript" charset="utf-8"></script>
-    <script src="echonest.js" type="text/javascript" charset="utf-8"></script>
-    <script src="key.js" type="text/javascript" charset="utf-8"></script>
+    <script src="../common/jquery.cookie.js" type="text/javascript" charset="utf-8"></script>
+    <script src="../common/underscore-min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="../common/echonest.js" type="text/javascript" charset="utf-8"></script>
     <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
     <link rel="stylesheet" type="text/css" href="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/css/jquery.dataTables.css">
+    <script type="text/javascript" src="../common/get_key_with_callback.js"></script>
     <script type="text/javascript" charset="utf8" src="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.min.js"></script>
 
     <style>
@@ -38,12 +38,13 @@
           <li class="nav-choice"><a href="http://static.echonest.com/labs">Labs</a></li>
           <li class="nav-choice"><a href="http://static.echonest.com/labs/demo.html">Demos</a></li>
           <li class="nav-choice"><a href="http://developer.echonest.com">developer.echonest.com</a></li>
-          <li class="nav-choice"><a data-toggle="modal" href="#apiKeyModal">API Key</a></li>
+          <!--<li class="nav-choice"><a data-toggle="modal" href="#apiKeyModal">API Key</a></li> -->
         </ul>
     </div>
   </div>
 </div>
 
+    <!--
 <div id="apiKeyModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="apiKeyModalLabel" aria-hidden="true">
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
@@ -55,12 +56,14 @@
         <input id="api_key" type="text" class="input-xlarge">
         <span id="key-type"> </span>
     </div>
+    
 
     <div class="modal-footer">
         <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
         <button id='save-key' class="btn btn-primary">Save changes</button>
     </div>
 </div>
+    -->
 
 <div class="container">
     <div id="the-form" class="span12 well">
@@ -484,7 +487,7 @@ function fetchMoreFromTasteProfile(id, start) {
                 function(index, item) {
                     if ('artist_id' in item) {
                         if ('genres' in item) {
-                            console.log(item.genres);
+                            // console.log(item.genres);
                         }
                         allItems.push(item);
                     } else {
@@ -548,20 +551,20 @@ function processParams() {
     }
 }
 
-function initEN(key, type) {
+function initEN(key) {
     en = new EchoNest(key);
-    $("#api_key").val(key);
-    $("#key-type").text(type);
-    $("#save-key").click(function() {
-        var newKey = $("#key-type").val();
-    });
+    <!-- 
+        $("#api_key").val(key);
+        $("#save-key").click(function() {
+            var newKey = $("#key-type").val();
+        });
+    -->
 }
 
 $(document).ready(function() {
     $.ajaxSetup( {cache: false});
-
-    fetchApiKey(function(key, type){
-        initEN(key, type);
+    fetchApiKey(function(api_key, isLoggedIn) {
+        initEN(api_key);
         initUI();
         processParams();
     });
