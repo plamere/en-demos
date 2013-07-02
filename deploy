@@ -1,1 +1,1 @@
-s3cmd sync --exclude '.git/*' --acl-public .  s3://static.echonest.com/demo3/
+s3cmd sync --exclude '.git/*' --acl-public .  s3://static.echonest.com/demo/

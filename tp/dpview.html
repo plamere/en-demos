@@ -169,8 +169,7 @@
 <script type="text/javascript">
 
 jQuery.ajaxSettings.traditional = true; 
-var api_key = 'NO_API_KEY';
-var en = new EchoNest(api_key);
+var en;
 var itemCache = {};
 
 function info(s) {
@@ -389,7 +388,7 @@ function processParams() {
 
 $(document).ready(function() {
     fetchApiKey( function(key, isLoggedIn) {
-        api_key = key;
+        en = new EchoNest(key);
         $.ajaxSetup( {cache: false});
         initUI();
         processParams();
