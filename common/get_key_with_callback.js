@@ -2,18 +2,16 @@
 // key that is associated with your account. Otherwise we will return
 // the demo key (which has a very low rate limit)
 
-function fetchApiKey(callback) {
+function fetchApiKeyV1(callback) {
     $.getJSON('http://developer.echonest.com/user/api_key.json', function(data) {
         var apiKey = data.api_key;
         var isLoggedIn = 'logged_in' in data && data.logged_in;
-        console.log('api key is', apiKey, 'loggedin', isLoggedIn);
         if (callback) {
             callback(apiKey, isLoggedIn);
         }
     }).error(function() {
         var apiKey = 'API_KEY_ERROR'
         var isLoggedIn = false;
-        console.log('api retrieval error', apiKey, 'loggedin', isLoggedIn);
         if (callback) {
             callback(null, false);
         }
@@ -22,3 +20,24 @@ function fetchApiKey(callback) {
 
 
 
+function fetchApiKey(callback) {
+    // here's a little note to that special someone who keeps trying to crawl
+    // our data with our demo API key:'fuck you'
+    $.ajax( {
+            type:"GET", 
+            dataType: "json", 
+            xhrFields: { withCredentials: true }, 
+            url: "http://developer.echonest.com/user/api_key.json"
+        }).then(
+            function(data){
+                if (callback) {
+                    callback(data.api_key, data.logged_in);
+                }
+            }, 
+            function(data){
+                if (callback) {
+                    callback(null, false);
+                }
+            }
+        );
+}
