@@ -138,7 +138,12 @@ function processParams() {
 }
 
 $(document).ready(function() {
+    // fetchApiKey will fetch the Echo Nest demo key for demos
+    // hosted on The Echo Nest, otherwise it fetch an empty key
     fetchApiKey( function(api_key, isLoggedIn) {
+        if (!api_key) {
+            api_key = 'MY_ECHO_NEST_API_KEY';
+        }
         apiKey = api_key;
         $("#all_results").hide();
         fetchGenres();

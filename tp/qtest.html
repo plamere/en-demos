@@ -539,9 +539,14 @@ function initUI() {
 }
 
 $(document).ready(function() {
+    // fetchApiKey will fetch the Echo Nest demo key for demos
+    // hosted on The Echo Nest, otherwise it fetch an empty key
     fetchApiKey( function(key, isLoggedIn) {
         var trackStartTime = now();
 
+        if (!key) {
+            key = 'MY_ECHO_NEST_API_KEY';
+        }
         api_key = key;
 
         $.ajaxSetup( {cache: false});

@@ -387,7 +387,12 @@ function processParams() {
 }
 
 $(document).ready(function() {
+    // fetchApiKey will fetch the Echo Nest demo key for demos
+    // hosted on The Echo Nest, otherwise it fetch an empty key
     fetchApiKey( function(key, isLoggedIn) {
+        if (!key) {
+            key = 'MY_ECHO_NEST_API_KEY';
+        }
         en = new EchoNest(key);
         $.ajaxSetup( {cache: false});
         initUI();

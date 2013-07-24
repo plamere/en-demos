@@ -372,7 +372,12 @@ function newSong(song) {
 }
 
 $(document).ready(function() {
+    // fetchApiKey will fetch the Echo Nest demo key for demos
+    // hosted on The Echo Nest, otherwise it fetch an empty key
     fetchApiKey( function(key, isLoggedIn) {
+        if (!api_key) {
+            api_key = 'MY_ECHO_NEST_API_KEY';
+        }
         api_key = key;
         $.ajaxSetup({ cache: false });
         $("#results").hide();
