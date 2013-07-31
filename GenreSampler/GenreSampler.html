@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Genre Sampler</title>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
+    <link href="//netdna.bootstrapcdn.com/bootswatch/2.3.1/united/bootstrap.min.css" rel="stylesheet">
+    <script src="https://rdio.com/api/api.js?client_id=ndS-G2UAc7dQj90nkoYW2w"></script>
+    <script type="text/javascript" src="../common/get_key_with_callback.js"></script>
+    <script src="../common/chosen.jquery.min.js" type="text/javascript"></script>
+     <script src="../common/underscore-min.js"></script>
+    <link rel="stylesheet" href="../common/chosen.css" />
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+    </style>
+    <script id="song-template" type="text/template">
+      <div class='tadiv'>
+          <div class="adiv" style="background-image: url(<%= bigIcon %>)">
+              <div class="buttons">
+                    <img class='playbutton play' src='images/play.png'>
+                    <img class='playbutton pause' src='images/pause.png'>
+              </div>          
+             <div class="song-info">
+                <div class="title album-label"><%= name %></div>
+                <div class="artist album-label"><%= artist %></div>
+             </div>
+          </div>
+      </div>
+    </script>
+  </head>
+
+<body>
+
+<div id="wrap" class="navbar navbar-inverse navbar-fixed-top">
+  <div class="navbar-inner">
+    <div class="container-fluid">
+        <a id='show-search' class="brand">Genre Sampler</a>
+        <ul class="nav">
+          <li> 
+            <span id='genre-span'>
+              <select id='genre' data-placeholder="Choose a genre" class="chzn-select" style="width:220px;" tabindex="2">
+                <option value=""></option> 
+              </select>
+            </span>
+          </li>
+          <li> <button id='random-genre' class="btn btn-small"><i class="icon-random"></i></button> </li>
+
+        </ul>
+        <ul id="play-buttons" class="nav pull-right">
+          <li> <button id='playPrev' class="btn btn-default pb"><i class="icon-backward"></i></button> </li>
+          <li> <button id='playPlay' class="btn btn-default pb"><i class="icon-play"></i></button> </li>
+          <li> <button id='playPause' class="btn btn-default pb"><i class="icon-pause"></i></button> </li>
+          <li> <button id='playNext' class="btn btn-default pb"><i class="icon-forward"></i></button> </li>
+          <span class='btn-group'> </span>
+        </ul>
+
+        <div id="cur-song-info">
+            <div id='stitle'> </div>
+            <div id='sartist'></div>
+        </div>
+
+    </div>
+  </div>
+</div>
+
+<div id="work-area">
+    <div id="greeting" class="hero-unit offset1 span10">
+        <h1> The Genre Sampler</h1>
+            The Genre Sampler gives you a tour through the many hundreds of musical genres. Select a genre and listen
+            to the music.
+    </div>
+
+    <div id="main">
+        <div id='list'> </div>
+        <br style="clear:left;"/>
+    </div>
+
+    <div class="container span10 offset1">
+        <small>
+            Powered by <a href="http://echonest.com">The Echo Nest</a> and <a href="http://rdio.com">Rdio</a>. 
+          Checkout <a href="https://github.com/plamere/en-demos/blob/master/GenreSampler/GenreSampler.html">the Source</a>.
+          See other <a href="http://static.echonest.com/labs/demo.html">Demos</a>.
+        </small>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+
+jQuery.ajaxSettings.traditional = true; 
+var apiKey = 'NO_API_KEY';
+var curSong = null;
+var curSongs = null;
+var maxTimeForSkip = 3000;
+var host = 'http://developer.echonest.com/'
+var knownSongs = {};
+var songTemplate = _.template($("#song-template").text());
+var allGenres;
+
+
+function info(s) {
+    $("#info").removeClass();
+    if (s.length > 0) {
+        $("#info").addClass("alert alert-info");
+    }
+    $("#info").text(s);
+}
+
+function error(s) {
+    $("#info").removeClass();
+    if (s.length > 0) {
+        $("#info").addClass("alert alert-error");
+    }
+    $("#info").text(s);
+}
+
+function getRdioID(song) {
+    var id = song.tracks[0].foreign_id;
+    var rawID = id.split(':')[2]
+    return rawID;
+}
+
+function now() {
+    return new Date().getTime();
+}
+
+function selectGenre(name) {
+    $('#genre').val(name);
+    $('#genre').trigger("liszt:updated");
+    newGenre();
+}
+
+function initUI() {
+    $("#playNext").click(function() {
+        playNextSong();
+    });
+    $("#playPrev").click(function() {
+        playPrevSong();
+    });
+
+    $("#playPlay").click(function() {
+        R.player.togglePause();
+    });
+
+    $("#playPause").click(function() {
+        R.player.togglePause();
+    });
+
+    $("#random-genre").click(function() {
+        var randomGenreIndex = Math.floor(Math.random() * allGenres.length);
+        var randomGenre = allGenres[randomGenreIndex].name;
+        selectGenre(randomGenre);
+    });
+}
+
+function newGenre() {
+    var genre = $("#genre").val();
+    if (genre.length > 0) {
+        fetchGenrePlaylist(genre, true, 1);
+    } else {
+        info("You must pick a genre");
+    }
+}
+
+function playSong(song) {
+    if (song === curSong) {
+        R.player.togglePause();
+    } else {
+        var oldSong = curSong;
+        curSong = song;
+        songChanged(oldSong);
+        var rdio = song.rdio;
+        $("#stitle").text(song.rdio.name);
+        $("#sartist").text(song.rdio.artist);
+        R.player.play({source: rdio.key});
+        goToByScroll(curSong.player);
+    }
+}
+
+function songChanged(song) {
+    if (song) {
+        var el = song.player.find('.adiv');
+
+        var pause = el.find('.pause');
+        var play = el.find('.play');
+
+        if (song === curSong) {
+            el.addClass('is-current');
+        } else {
+            el.removeClass('is-current');
+        }
+
+        if (song === curSong && R.player.playState() === R.player.PLAYSTATE_PLAYING) {
+            play.hide();
+            pause.show();
+        } else {
+            play.show();
+            pause.hide();
+        }
+    }
+}
+
+function goToByScroll(elem) {
+   var pos = elem.position().top;
+   var height = elem.height();
+
+   if (pos < $(window).scrollTop() || pos + height > $(window).scrollTop() + window.innerHeight) {
+       $('html,body').animate({ scrollTop: elem.offset().top - 80}, 'slow');
+    } 
+}
+
+function playNextSong() {
+    if (curSong) {
+        if (curSong.which + 1 < curSongs.length) {
+            playSong(curSongs[curSong.which + 1]);
+        } 
+    } 
+}
+
+function playPrevSong() {
+    if (curSong) {
+        if (curSong.which - 1 >= 0) {
+            playSong(curSongs[curSong.which - 1]);
+        } 
+    } 
+}
+
+function getPlayer(song) {
+    var rdio = song.rdio;
+    var bigIcon = rdio.icon.replace('-200', '-400');
+    rdio.bigIcon = bigIcon;
+    var el = $(songTemplate(rdio))
+
+    var buttons = el.find('.buttons');
+    buttons.hide();
+
+    var pause = el.find('.pause');
+    var play = el.find('.play');
+
+    play.click( function() {
+        playSong(song);
+    });
+
+    pause.click( function() {
+        playSong(song);
+    });
+
+    el.hover(
+        function() {
+            songChanged(song);
+            buttons.show();
+        },
+        function() {
+            buttons.hide();
+        }
+    );
+
+    el.find('.tooltips').tooltip({placement:'bottom', delay : 1500});
+    return el;
+}
+
+
+function showPlaylist(songs) {
+    $("#list").empty();
+    var div = $("#list");
+    curSongs = songs;
+    curSong = null;
+    _.each(songs, 
+        function(song, index, list) { 
+            var player = getPlayer(song);
+            song.player = player;
+            div.append(player);
+        }
+    );
+    if (curSongs.length > 0) {
+        $("#play-buttons").show();
+        $("#main").show();
+        $("#greeting").hide();
+        playSong(curSongs[0]);
+    }
+}
+
+function fetchRdioTrackInfo(songs) {
+    var start = now();
+    var ids = [];
+
+    _.each(songs, 
+        function(song, index, list) {
+            var rdioID = getRdioID(song);
+            song.which = index;
+            if (! (rdioID in knownSongs)) {
+                knownSongs[rdioID] = song;
+                ids.push(rdioID);
+            } else {
+                song.rdio = knownSongs[rdioID].rdio;
+            }
+        }
+    );
+
+    if (ids.length > 0) {
+        R.request( 
+        { 
+            method:"get", 
+            content: { 
+                keys: ids 
+            },
+
+            success: function(response) {
+                _.each(response.result, 
+                    function(t) { 
+                        if (t.key in knownSongs) {
+                            knownSongs[t.key]['rdio'] = t;
+                        } else {
+                            error("unexpected result " + t.key);
+                        }
+                    } 
+                );
+                showPlaylist(songs);
+            },
+
+            error: function(response) {
+                error("trouble getting rdio info");
+            }
+        });
+    } else {
+        showPlaylist(songs);
+    }
+}
+
+function fetchGenrePlaylist(genre,  wandering, variety) {
+    var url = host + 'api/v4/playlist/static?api_key='  + apiKey;
+
+    $("#all_results").show();
+
+    $.getJSON(url, { 'genre': genre, 'format':'json', 
+            'bucket': [ 'id:rdio-US', 'tracks'], 'limit' : true,
+            'variety' : variety, 
+            'dmca' : true,
+            'results': 64, 'type':'genre-radio',  }, 
+
+            function(data) {
+                info("");
+                $("#results").empty();
+                if (! ('songs' in data.response)) {
+                    info("Can't find that genre");
+                } else {
+                    var songs = data.response.songs;
+                    history.replaceState({}, document.title, '?genre=' + genre);
+                    $("#all_results").show();
+                    fetchRdioTrackInfo(songs);
+                }
+            }).error( 
+                function() { 
+                    info("Sorry, trouble making a playlist for the genre " + genre);
+            } );
+}
+
+function fetchGenres() {
+    var url = host + 'api/v4/artist/list_genres?api_key=' + apiKey;
+    $.getJSON(url, { 'format':'json'}, 
+            function(data) {
+                var genres = data.response.genres;
+                var glist = $('#genre');
+
+                allGenres = genres;
+
+                for (var i = 0, max = genres.length; i < max; i++) {
+                    var genre = genres[i].name;
+                    var opt = $("<option>").attr('value', genre).text(genre);
+                    glist.append(opt);
+                }
+                $(".chzn-select").chosen().change(function() {
+                    newGenre();
+                });
+            });
+}
+
+function processParams() {
+    var params = {};
+    var q = document.URL.split('?')[1];
+    if(q != undefined){
+        q = q.split('&');
+        for(var i = 0; i < q.length; i++){
+            var pv = q[i].split('=');
+            var p = pv[0];
+            var v = pv[1];
+            params[p] = v;
+        }
+    }
+
+    if ('genre' in params) {
+        var genre = params['genre'];
+        genre = genre.replace(/%20/g, ' ');
+        selectGenre(genre);
+    }
+}
+
+
+$(document).ready(function() {
+    var trackStartTime = now();
+
+    $.ajaxSetup( {cache: false});
+    fetchApiKey( function(api_key, isLoggedIn) {
+        // fetch API key gets the 'demo' key from the Echo Nest.
+        // if your app is not hosted on an Echo Nest domain, then
+        // you should change 'YOUR_ECHO_NEST_API_KEY' to your actual
+        // Echo Nest API KEY.
+        if (!api_key) {
+            api_key =  'YOUR_ECHO_NEST_API_KEY';
+        }
+
+        apiKey = api_key;
+        initUI();
+
+        fetchGenres();
+
+        R.ready(
+            function() {
+                R.player.on("change:playingTrack", function(track) {
+                    if (track === null) {
+                        playNextSong();
+                    }
+                });
+                
+                R.player.on("change:playState", function(state) {
+                    songChanged(curSong);
+                });
+
+                R.player.on("change:playingSource", function(track) {
+                    songChanged(curSong);
+                });
+                processParams();
+            }
+        );
+
+        R.ready(function() {
+            R.player.on("change:playingTrack", function(track) {
+                if (track) {
+                    var image = track.attributes.icon;
+                    $("#rp-album-art").attr('src', image);
+                    trackStartTime = now();
+                } else {
+                    playNextSong();
+                }
+            });
+
+            R.player.on("change:playState", function(state) {
+                if (state == R.player.PLAYSTATE_PAUSED) {
+                    $("#rp-pause-play i").removeClass("icon-pause");
+                    $("#rp-pause-play i").addClass("icon-play");
+                    $("#playPlay").show();
+                    $("#playPause").hide();
+                }
+                if (state == R.player.PLAYSTATE_PLAYING) {
+                    $("#rp-pause-play i").removeClass("icon-play");
+                    $("#rp-pause-play i").addClass("icon-pause");
+                    $("#playPlay").hide();
+                    $("#playPause").show();
+                }
+            });
+
+            R.player.on("change:playingSource", function(track) {});
+
+            $("#rp-pause-play").click(function() {
+                R.player.togglePause();
+            });
+
+            $("#rp-next").click(function() {
+                var delta = now() - trackStartTime;
+                if (delta < maxTimeForSkip) {
+                    skipSong();
+                } else {
+                    playNextSong();
+                }
+            });
+        });
+    });
+});
+
+</script>
+</body>
+</html>

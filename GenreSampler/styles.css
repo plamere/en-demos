@@ -1,0 +1,193 @@
+#gallery {
+    display:none;
+}
+
+#about {
+    display:none;
+}
+
+#save {
+    position:relative;
+    display:none;
+    top: -3px;
+}
+
+#work-area {
+    margin-top:80px;
+    margin-left:8px;
+}
+
+#main {
+    margin-left:8px;
+}
+
+.adiv {
+    width:294px;
+    height:344px;
+    background-size:100%;
+    background-repeat:no-repeat;
+    overflow:hidden;
+    position:relative;
+    background-color: #122;
+    margin-bottom:6px;
+    padding:10px;
+}
+
+#go {
+    position:relative;
+    left: 6px;
+    top: -3px;
+}
+
+#tweet-span {
+    position:relative;
+    top:1px;
+    margin-right:20px;
+    float:left;
+}
+
+.tadiv {
+    display:inline-block;
+    width:310px;
+    height:364px;
+    position:relative;
+    background-color: #122;
+    margin:3px;
+}
+
+
+.is-current {
+    background-color:#e36b23;
+    font-size:18px;
+}
+
+#list {
+    margin-left:4px;
+    text-align:center;
+}
+
+.adiv:hover {
+    background-color:#4bc313;
+}
+
+#info {
+    margin-left:10px;
+}
+
+
+.song-info {
+    position:absolute;
+    bottom: 4px;
+    margin-left:6px;
+    margin-right:6px;
+    line-height:18px;
+    font-size:14px;
+    height:40px;
+    overflow:hidden;
+    color:#666;
+}
+
+.playbutton {
+    width:100px;
+    position:absolute;
+    top:100px;
+    left:100px;
+    opacity:.8;
+}
+
+#footer {
+    margin-top:10px;
+    margin-left:20px;
+    margin-bottom:20px;
+}
+
+
+
+.album-label {
+    overflow:hidden;
+    height:18px;
+    text-overflow:ellipsis;
+    width:280px;
+    white-space:nowrap;
+}
+
+.change {
+    float:left;
+}       
+
+.bypass {
+    float:right;
+}       
+
+#search {
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+.faq {
+    margin-right:10px;
+}
+
+#frog-image {
+    margin-right:15px;
+    margin-top:5px;
+    float:left;
+    border-radius:15px;
+
+}
+
+#lz-graph {
+    float:right;
+    border-radius:15px;
+    margin-left:10px;
+}
+
+.empty-link {
+    cursor:pointer;
+}   
+
+.chzn-container {
+    margin-top:8px;
+    padding-top:8px;
+    font-size:16px;
+}
+
+#play-buttons {
+    padding-top:8px;
+    display:none;
+}
+
+#random-genre {
+    margin-top:16px;
+    margin-left:8px;
+}
+
+.pb {
+    margin-top:8px;
+    margin-right:4px;
+}
+
+#cur-song-info {
+    margin-top:8px;
+    width:100%;
+    text-align:center;
+    color:#eee;
+}
+
+#show-search {
+    margin-top:8px;
+    font-size:28px;
+}
+
+
+#stitle {
+    font-size:18px;
+    margin-bottom:4px;
+    overflow:hidden;
+    height:20px;
+}
+
+#sartist {
+    overflow:hidden;
+    height:20px;
+}
