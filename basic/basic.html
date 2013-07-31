@@ -30,7 +30,7 @@
 </div>
 
 <div class="container">
-    <div class="hero-unit span5">
+    <div class="hero-unit span8">
         <h1> Basic Playlisting</h1>
         <p> A demonstration of how to use The Echo Nest Basic Playlisting API to create a Spotify playlist.  </p>
         <div>
@@ -39,9 +39,14 @@
         </div>
         <div id="info" class=""> </div>
     </div>
-</div>
-<div id="results"> </div>
 
+    <div id="all-results" class="container">
+        <div class="hero-unit span8">
+            <div id="results"> </div>
+        </div>
+    </div>
+
+</div>
 <script type="text/javascript">
 
 var embed = '<iframe src="https://embed.spotify.com/?uri=spotify:trackset:PREFEREDTITLE:TRACKS" style="width:640px; height:520px;" frameborder="0" allowtransparency="true"></iframe>';
@@ -67,6 +72,7 @@ function fetchBasicPlaylist(artist) {
     $.getJSON(url, args,
         function(data) {
             info("");
+            $("#all-results").show();
             $("#results").empty();
             if (! ('songs' in data.response)) {
                 error("Can't find that artist");
