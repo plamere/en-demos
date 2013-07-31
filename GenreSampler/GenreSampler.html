@@ -54,9 +54,11 @@
           <span class='btn-group'> </span>
         </ul>
 
+
         <div id="cur-song-info">
             <div id='stitle'> </div>
             <div id='sartist'></div>
+            <div id='info'> </div>
         </div>
 
     </div>
@@ -88,23 +90,15 @@
 <script type="text/javascript">
 
 jQuery.ajaxSettings.traditional = true; 
-var apiKey = 'NO_API_KEY';
-var curSong = null;
-var curSongs = null;
-var maxTimeForSkip = 3000;
 var host = 'http://developer.echonest.com/'
-var knownSongs = {};
+var apiKey = 'NO_API_KEY';
 var songTemplate = _.template($("#song-template").text());
-var allGenres;
 
+var curSong = null;         // currently playing song
+var curSongs = null;        // the current playlist
+var knownSongs = {};        // cache of rdio info
+var allGenres;              // list of all genres
 
-function info(s) {
-    $("#info").removeClass();
-    if (s.length > 0) {
-        $("#info").addClass("alert alert-info");
-    }
-    $("#info").text(s);
-}
 
 function error(s) {
     $("#info").removeClass();
@@ -158,7 +152,7 @@ function newGenre() {
     if (genre.length > 0) {
         fetchGenrePlaylist(genre, true, 1);
     } else {
-        info("You must pick a genre");
+        error("You must pick a genre");
     }
 }
 
@@ -339,10 +333,10 @@ function fetchGenrePlaylist(genre,  wandering, variety) {
             'results': 64, 'type':'genre-radio',  }, 
 
             function(data) {
-                info("");
+                error("");
                 $("#results").empty();
                 if (! ('songs' in data.response)) {
-                    info("Can't find that genre");
+                    error("Can't find that genre");
                 } else {
                     var songs = data.response.songs;
                     history.replaceState({}, document.title, '?genre=' + genre);
@@ -351,7 +345,7 @@ function fetchGenrePlaylist(genre,  wandering, variety) {
                 }
             }).error( 
                 function() { 
-                    info("Sorry, trouble making a playlist for the genre " + genre);
+                    error("Sorry, trouble making a playlist for the genre " + genre);
             } );
 }
 
@@ -423,6 +417,14 @@ $(document).ready(function() {
                 });
                 
                 R.player.on("change:playState", function(state) {
+                    if (state == R.player.PLAYSTATE_PAUSED) {
+                        $("#playPlay").show();
+                        $("#playPause").hide();
+                    }
+                    if (state == R.player.PLAYSTATE_PLAYING) {
+                        $("#playPlay").hide();
+                        $("#playPause").show();
+                    }
                     songChanged(curSong);
                 });
 
@@ -432,48 +434,6 @@ $(document).ready(function() {
                 processParams();
             }
         );
-
-        R.ready(function() {
-            R.player.on("change:playingTrack", function(track) {
-                if (track) {
-                    var image = track.attributes.icon;
-                    $("#rp-album-art").attr('src', image);
-                    trackStartTime = now();
-                } else {
-                    playNextSong();
-                }
-            });
-
-            R.player.on("change:playState", function(state) {
-                if (state == R.player.PLAYSTATE_PAUSED) {
-                    $("#rp-pause-play i").removeClass("icon-pause");
-                    $("#rp-pause-play i").addClass("icon-play");
-                    $("#playPlay").show();
-                    $("#playPause").hide();
-                }
-                if (state == R.player.PLAYSTATE_PLAYING) {
-                    $("#rp-pause-play i").removeClass("icon-play");
-                    $("#rp-pause-play i").addClass("icon-pause");
-                    $("#playPlay").hide();
-                    $("#playPause").show();
-                }
-            });
-
-            R.player.on("change:playingSource", function(track) {});
-
-            $("#rp-pause-play").click(function() {
-                R.player.togglePause();
-            });
-
-            $("#rp-next").click(function() {
-                var delta = now() - trackStartTime;
-                if (delta < maxTimeForSkip) {
-                    skipSong();
-                } else {
-                    playNextSong();
-                }
-            });
-        });
     });
 });
 
