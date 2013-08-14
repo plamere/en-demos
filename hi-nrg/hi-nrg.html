@@ -250,9 +250,8 @@ function createDynamicPlaylist(artist) {
         'artist': artist, 
         'api_key' : apiKey,
         'bucket': [ 'id:rdio-US', 'tracks', 'audio_summary'], 'limit' : true,
-        "min_energy":.5,
+        "min_energy":.7,
         "min_loudness": -18,
-        "max_speechiness": .8,
         'type':'artist-radio',
         'dmca': false
     };

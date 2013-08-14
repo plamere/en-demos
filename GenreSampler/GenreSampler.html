@@ -410,13 +410,17 @@ $(document).ready(function() {
 
         R.ready(
             function() {
+                console.log("rdio ready, setting up event handlers");
+
                 R.player.on("change:playingTrack", function(track) {
+                    console.log('change:playingTrack', track);
                     if (track === null) {
                         playNextSong();
                     }
                 });
                 
                 R.player.on("change:playState", function(state) {
+                    console.log('change:playState', state);
                     if (state == R.player.PLAYSTATE_PAUSED) {
                         $("#playPlay").show();
                         $("#playPause").hide();
@@ -425,12 +429,18 @@ $(document).ready(function() {
                         $("#playPlay").hide();
                         $("#playPause").show();
                     }
+
+                    if (state == R.player.PLAYSTATE_STOPPED) {
+                        // playNextSong();
+                    }
                     songChanged(curSong);
                 });
 
                 R.player.on("change:playingSource", function(track) {
+                    console.log('change:playingSource', track);
                     songChanged(curSong);
                 });
+
                 processParams();
             }
         );
