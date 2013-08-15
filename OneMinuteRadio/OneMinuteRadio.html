@@ -230,7 +230,6 @@ function getPlayer(song) {
     var rdio = song.rdio;
     var bigIcon = rdio.icon.replace('-200', '-400');
     rdio.bigIcon = bigIcon;
-    console.log('rdio', rdio);
     var el = $(songTemplate(rdio))
 
     var buttons = el.find('.buttons');
@@ -339,7 +338,8 @@ function fetchGenrePlaylist(genre,  wandering, variety) {
             'variety' : variety, 
             'dmca' : true,
             'max_duration' : 60,
-            'sort': 'duration-asc',
+            'min_duration' : 0,
+            'max_speechiness': .3,
             'results': 64, 'type':'genre-radio',  }, 
 
             function(data) {
@@ -349,9 +349,13 @@ function fetchGenrePlaylist(genre,  wandering, variety) {
                     error("Can't find that genre");
                 } else {
                     var songs = data.response.songs;
-                    history.replaceState({}, document.title, '?genre=' + genre);
-                    $("#all_results").show();
-                    fetchRdioTrackInfo(songs);
+                    if (songs.length == 0) {
+                        error("Can't find any minute long songs");
+                    } else {
+                        history.replaceState({}, document.title, '?genre=' + genre);
+                        $("#all_results").show();
+                        fetchRdioTrackInfo(songs);
+                    }
                 }
             }).error( 
                 function() { 
@@ -420,17 +424,14 @@ $(document).ready(function() {
 
         R.ready(
             function() {
-                console.log("rdio ready, setting up event handlers");
 
                 R.player.on("change:playingTrack", function(track) {
-                    console.log('change:playingTrack', track);
                     if (track === null) {
                         playNextSong();
                     }
                 });
                 
                 R.player.on("change:playState", function(state) {
-                    console.log('change:playState', state);
                     if (state == R.player.PLAYSTATE_PAUSED) {
                         $("#playPlay").show();
                         $("#playPause").hide();
@@ -447,7 +448,6 @@ $(document).ready(function() {
                 });
 
                 R.player.on("change:playingSource", function(track) {
-                    console.log('change:playingSource', track);
                     songChanged(curSong);
                 });
 
