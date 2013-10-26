@@ -57,8 +57,7 @@
         </div>
         <div id="info" class="alert alert-error"> </div>
     </div>
-    <div class="container" id="results">
-
+    <div class="container offset1" id="results">
         <div id='buttons'>
             <span id="play-buttons" class="btn-group">
               <button id='playPrev' class="btn btn-default pb"><i class="icon-backward"></i></button> </li>
@@ -201,7 +200,7 @@ function createSongTable() {
         if (c == ' ') {
             title.html('&nbsp;');
         } else {
-           song = getMatchingSong(c, currentGenre);
+           var song = getMatchingSong(c, currentGenre);
             if (song) {
                 song.prev = null;
                 song.next = null;
@@ -213,6 +212,9 @@ function createSongTable() {
                 currentSongs.push(song);
                 title.text(song.title + ' by ' + song.artist_name);
                 song.row = row;
+                row.on("click", function() {
+                    playSong(song);
+                });
             }
         }
         row.append(char);

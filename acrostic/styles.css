@@ -20,14 +20,6 @@
 }
 
 
-.playbutton {
-    width:100px;
-    position:absolute;
-    top:100px;
-    left:100px;
-    opacity:.8;
-}
-
 #footer {
     margin-top:20px;
     margin-left:20px;
@@ -36,13 +28,13 @@
 
 
 #buttons {
-    width:100%;
+    width:600px;
 }
 
 
 #song-table {
     font-size:18px;
-    margin-top: 30px;
+    margin-top: 20px;
     width:600px;
 }
 
@@ -59,8 +51,6 @@
 }
 
 #results {
-    margin-left:140px;
-    margin-top:60px;
-    width:600px;
+    margin-top:40px;
 }
 
