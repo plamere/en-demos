@@ -1,0 +1,66 @@
+
+#work-area {
+    margin-top:80px;
+    margin-left:8px;
+}
+
+#main {
+    margin-left:8px;
+}
+
+#go {
+    margin-top:40px;
+}
+
+
+#info {
+    margin-left:20px;
+    display:None;
+    width:470px;
+}
+
+
+.playbutton {
+    width:100px;
+    position:absolute;
+    top:100px;
+    left:100px;
+    opacity:.8;
+}
+
+#footer {
+    margin-top:20px;
+    margin-left:20px;
+    margin-bottom:20px;
+}
+
+
+#buttons {
+    width:100%;
+}
+
+
+#song-table {
+    font-size:18px;
+    margin-top: 30px;
+    width:600px;
+}
+
+.char {
+    80px;
+}
+
+#message {
+    margin-left: 20px;
+}
+
+#genre-container {
+    margin-left: 20px;
+}
+
+#results {
+    margin-left:140px;
+    margin-top:60px;
+    width:600px;
+}
+
