@@ -51,7 +51,7 @@
                         class="input-xlarge" placeholder="Type your secret message">
                 </div>
                 <div class="offset1 span2">
-                    <button id='go' class="btn btn-success">Generate the Acrostic Playlist</button> 
+                    <button id='go' class="btn btn-primary">Generate the Acrostic Playlist</button> 
                 </div>
             </div>
         </div>
@@ -65,7 +65,7 @@
               <button id='playPause' class="btn btn-default pb"><i class="icon-pause"></i></button> </li>
               <button id='playNext' class="btn btn-default pb"><i class="icon-forward"></i></button> </li>
             </span>
-            <button id='save' class="btn btn-success pull-right">Save to Rdio</button> 
+            <button id='save' class="btn btn-primary pull-right">Save to Rdio</button> 
         </div>
 
         <table id="song-table" class="table table-bordered table-striped">
@@ -101,14 +101,14 @@ var curSong = null;
 
 function error(s) {
     $("#info").addClass("alert-error");
-    $("#info").removeClass("alert-info");
+    $("#info").removeClass("alert-success");
     $("#info").show();
     $("#info").text(s);
 }
 
 function info(s) {
     $("#info").removeClass("alert-error");
-    $("#info").addClass("alert-info");
+    $("#info").addClass("alert-success");
     $("#info").show();
     $("#info").text(s);
 }
@@ -194,7 +194,7 @@ function createSongTable() {
 
     _.each(currentMessage, function(c, i) {
         var row = $("<tr>");
-        var char = $("<th class='char'>");
+        var char = $("<td class='char'>");
         char.html('<b>' + c.toUpperCase() + '</b>');
         var title = $("<td>");
         if (c == ' ') {
@@ -275,9 +275,9 @@ function playSong(song) {
 function songChanged(song) {
     if (song) {
         if (song === curSong && R.player.playState() === R.player.PLAYSTATE_PLAYING) {
-            song.row.addClass('success');
+            song.row.addClass('primary');
         } else {
-            song.row.removeClass('success');
+            song.row.removeClass('primary');
         }
     }
 }

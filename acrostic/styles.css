@@ -38,6 +38,10 @@
     width:600px;
 }
 
+#song-table TR {
+    cursor:pointer;
+}
+
 .char {
     80px;
 }
