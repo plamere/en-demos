@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Beyond the Play button</title>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css" rel="stylesheet">
+    <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
+
+    <style type="text/css">
+      body {
+        padding-top: 20px;
+        padding-bottom: 40px;
+      }
+
+      /* Custom container */
+      .container-narrow {
+        margin: 0 auto;
+        max-width: 700px;
+      }
+      .container-narrow > hr {
+        margin: 30px 0;
+      }
+
+      /* Main marketing message and sign up button */
+      .jumbotron {
+        margin: 60px 0;
+        text-align: center;
+      }
+
+      .jumbotron .text {
+        text-align: left;
+      }
+
+      .jumbotron h1 {
+        font-size: 48px;
+        line-height: 1;
+      }
+      .jumbotron .btn {
+        font-size: 21px;
+        padding: 14px 24px;
+      }
+
+    .ico {
+        float:left;
+        width:140px;
+        margin-top:6px;
+        margin-right:10px;
+        margin-bottom:10px;
+    }
+
+    .item-buttons {
+        margin-top:20px;
+        margin-bottom:20px;
+    }
+
+    .med {
+        width:300px;
+    }
+
+
+      /* Supporting marketing content */
+      .marketing {
+        margin: 60px 0;
+      }
+      .marketing p + h4 {
+        margin-top: 28px;
+      }
+
+      .who {
+        margin:16px;
+      }
+    </style>
+  </head>
+
+<body>
+
+    <div class="container-narrow">
+
+      <div class="masthead">
+        <h3 class="muted">SXSW 2014 Panel Proposal</h3>
+      </div>
+
+      <hr>
+
+      <div class="jumbotron">
+        <h1> Beyond the Play Button</h1>
+        <h2>The Future of Listening</h2>
+        <div class="who"> Speaker: <a href="http://musicmachinery.com">Paul Lamere </a></div>
+        <p class="lead text">
+        
+        35 years after the first Sony Walkman shipped, today's music player still has essentially the same set of
+        controls as that original portable music player.  Even though today's music player might have a million
+        times more music than the cassette player, the interface to all of that music has changed very little.  
+         </p>
+          <img class='med' src="images/walkman.jpg"> 
+          <img class='med' src="images/ipod.jpg"> 
+        <p class="lead text">
+         In this talk we'll explore new ways that a music listener can interact with their music.  First we will
+         explore the near future where your music player knows so much about you, your music taste and your
+         current context that it plays the right music for you all the time.  No UI is needed.
+          <div>
+              <img  src="images/elevader.png"> 
+            </div>
+         </p>
+        <p class="lead text">
+         Next, we'll explore a future where music listening is no longer a passive experience.  Instead of just
+         pressing the play button and passively listening you will be able to jump in and interact with the
+         music.   Make your favorite song last forever, add your favorite drummer to that Adele track or unleash
+         your inner Skrillex and take total control of your favorite track.
+         </p>
+          <div>
+              <img  src="images/monome.jpg"> 
+            </div>
+    </div>
+    <div class="container-narrow">
+      <div class="row-fluid marketing">
+        <h1> Interactive Examples</h1>
+        Here are some experimental interfaces that allow a music listener to interact with their music.
+        <div class="span10">
+          <h3 id='ij' >Infinite Jukebox</h3>
+
+          <p> <i> For when your favorite song just isn't long enough </i> </p>
+          <img class='ico' src="images/ij.png"> This web app lets you upload a favorite MP3 
+          and will then generate a never-ending and ever changing version of the song. 
+          Infinite Jukebox uses the Echo Nest analyzer to break the song into beats. It plays the song
+          beat by beat, but at every beat there's a chance that it will jump to a different part of song
+          that happens to sound very similar to the current beat. For beat similarity the uses pitch,
+          timbre, loudness, duration and the position of the beat within a bar. There's a nifty
+          visualization that shows all the possible transitions that can occur at any beat. Built at Music
+          Hack Day Boston 2012.
+          <p>
+          <br style="clear:both;" />
+          <div class='visit'> <a class='btn btn-primary' href="http://infinitejuke.com"> The Infinite Jukebox </a> </div>
+          <hr>
+
+          <h3 id='bon'>The Bonhamizer</h3>
+          <p> <i> Some songs just need a little bit of Bonzo</i> </p>
+          <img class='ico' src="images/bon.png"> 
+
+            This app will take a track and re-render it as if John Bonham of Led Zepplin was the drummer. 
+            This app works by cutting songs up into beats and tatums, and aligning the beats to John Bonham Drum patterns.
+          <p>
+          <br style="clear:both;" />
+          <div class='visit'> 
+            <a class='btn btn-primary' 
+                href="http://static.echonest.com/bonhamizer/">The Bonhamizer</a> 
+          </div>
+          <hr>
+
+
+          <h3 id='gtiab'>Girl Talk in a Box</h3>
+          <p> <i> Don't just play your music, play <b>with</b> your music</i> </p>
+          <img class='ico' src="images/gtiab.png"> 
+          <p>
+            Girl Talk in a Box lets you interact with your favorite song. You can
+            speed it up, slow it down, skip beats, play it backwards, beat by beat.
+            You can make it swing. You can make breaks and drops.  
+            You can upload your own song or select a song from the gallery.
+            The Echo Nest analyzer is used to break the song into beats and tatums
+            that are displayed as colored tiles that you can interact with. Built at MIDEM
+            Music Hack Day 2013.
+            
+
+          </p>
+          <br style="clear:both;" />
+          <div class='visit'> 
+            <a class='btn btn-primary' 
+                href="http://girltalkinabox.com/">Girl Talk in a Box</a> 
+          </div>
+          <hr>
+          <h3 id='rtmt'>Roadtrip Mixtape</h3>
+          <p> <i> Create a mixtape of local artists for your roadtrip</i> </p>
+          <img class='ico' src="images/rtmt.png"> 
+          <p>
+          Roadtrip Mixtape is an application that you can use to create road trip playlists. 
+          Type in the name of your
+          starting and ending points, and the application will create a playlist of music by artists that
+          from the area you are traveling through. Drive through Boston you might hear Aerosmith or Donna
+          Summer. Drive through New Orleans and you might hear Lil Wayne or Dr. John. The application 
+          uses the Echo Nest API to get the artist location data for thousands of artists.
+
+          </p>
+          <br style="clear:both;" />
+          <div class='visit'> 
+            <a class='btn btn-primary' 
+                href="http://labs.echonest.com/CityServer/roadtrip.html">Roadtrip Mixtape</a> 
+          </div>
+          <hr>
+
+          <h3 id='bpr'>Bipolar Radio</h3>
+          <p> <i> Music to affect your mood</i> </p>
+          <img class='ico' src="images/bp.png"> 
+          <p>
+          Bipolar Radio is your standard Pandora-style artist radio but with a twist. 
+          Type in an artist, and you’ll get
+          an endless stream of music by similar artists.   When you need to hear a high energy song, just
+          click on the yellow happy face and you’ll instantly hear a high energy song by the currently
+          playing artist.  Similarly, if you’d like to chill out, just click on the green face and you’ll
+          instantly hear a low energy song that should help you relax a bit.
+          The hack uses the Echo Nest song data to help find the high and low energy songs. It uses a
+          combination of loudness, energy, danceability, and tempo to sort and filter the songs by an artist
+          into the high and low energy buckets.  Build at Music Hack Day San Francisco 2011.
+            
+
+          </p>
+          <br style="clear:both;" />
+          <div class='visit'> 
+            <a class='btn btn-primary' 
+                href="http://static.echonest.com/bpradio/bpradio.html">Bipolar Radio</a> 
+          </div>
+          <hr>
+
+
+          <h3 id='3dmm'>The 3D Music Maze</h3>
+          <p> <i> Music exploration as a game</i> </p>
+          <img class='ico' src="images/3dmm.png"> 
+          <p>
+            The 3D Music Maze is a WebGL app that lets you wander around a Castle Wolfenstein style maze and 
+            sample music and enjoy the album art.  If you wander through the maze long enough you may
+            encounter an embedded game called 'Save Justin Bieber from the Death Metal'. This app is an
+            experiment in using alternative interfaces for music exploration and discovery.  I uses The Echo
+            Nest artist similarity and playlisting APIs to build logical clusters of artists and songs. It
+            uses the 7Digital media (album art and 30 second samples) and three.js for all the 3D goodness.
+
+          </p>
+          <br style="clear:both;" />
+          <div class='visit'> 
+            <a class='btn btn-primary' 
+                href="http://labs.echonest.com/3dServer/maze.html">The 3D Music Maze</a> 
+          </div>
+          <hr>
+
+      </div>
+      </div>
+
+<script type="text/javascript">
+</script>
+</body>
+</html>

@@ -5,4 +5,4 @@ The app doesn't make any direct calls to The Echo Nest API. Instead it uses prec
 
     % python build_precache.py 'alternative rock'
    
-add the output to the 'js' directory and add the genre name to the list of predefinedGenre found in the fetchGenres() method in acrostic.html
+add the output to the 'js' directory and add the genre name to the list of predefinedGenre found in the fetchGenres() method in acrostic.html/var/folders/_s/7bq8ytj94234xv01jh4p_5fw0000gn/T/com.skitch.skitch/Acrostic_Playlist_Maker.png

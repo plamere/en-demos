@@ -57,7 +57,7 @@
         </div>
         <div id="info" class="alert alert-error"> </div>
     </div>
-    <div class="container offset1" id="results">
+    <div class="container" id="results">
         <div id='buttons'>
             <span id="play-buttons" class="btn-group">
               <button id='playPrev' class="btn btn-default pb"><i class="icon-backward"></i></button> </li>
@@ -275,9 +275,9 @@ function playSong(song) {
 function songChanged(song) {
     if (song) {
         if (song === curSong && R.player.playState() === R.player.PLAYSTATE_PLAYING) {
-            song.row.addClass('primary');
+            song.row.addClass('success');
         } else {
-            song.row.removeClass('primary');
+            song.row.removeClass('success');
         }
     }
 }
