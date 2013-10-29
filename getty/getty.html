@@ -43,7 +43,14 @@
       <div class="hero-unit">
         <p>This is a demo that shows some of the high quality Getty images available via the Echo Nest API
         <div id="galleria"> </div>
-        <div id="title">  </div>
+        <div>
+            <span id="title">  </span>
+            <span id="tags" class="pull-right">  </span>
+        </div>
+        <div>
+            <span id="attribution">  </span>
+            <span id="size" class="pull-right">  </span>
+        </div>
       </div>
 
 
@@ -69,9 +76,13 @@ $(document).ready(function() {
         images = data;
         _.each(artists, function(artist, i) {
             _.each(artist.images, function(image, i) {
+                var tags = image.tags.join(', ');
                 var img = $("<img>");
                 img.attr('src', image.url);
                 img.attr('data-title', "#" + (artist.rank +1) + " " + artist.name);
+                img.attr('data-tags', tags);
+                img.attr('data-attribution', image.license.attribution);
+                img.attr('data-size', image.width + 'x' + image.height + " pixels");
                 gallery.append(img);
             });
         });
@@ -88,7 +99,13 @@ $(document).ready(function() {
         var current = this.getData(this.getIndex());
         var currImg = current.original;
         var title = $(currImg).attr('data-title'); 
+        var tags = $(currImg).attr('data-tags'); 
+        var attribution = $(currImg).attr('data-attribution'); 
+        var size = $(currImg).attr('data-size'); 
         $("#title").text(title);
+        $("#tags").text(tags);
+        $("#attribution").text(attribution);
+        $("#size").text(size);
     });
 });
 
