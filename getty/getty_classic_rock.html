@@ -1,0 +1,114 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Echo Nest / Getty Images demo</title>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
+    <script src="../common/underscore-min.js"></script>
+    <link href="//netdna.bootstrapcdn.com/bootswatch/2.3.1/cyborg/bootstrap.min.css" rel="stylesheet">
+    <script type="text/javascript" src="galleria/galleria-1.3.1.min.js">
+    <link type="text/css" rel="stylesheet" href="galleria/themes/classic/galleria.classic.css">
+    <script type="text/javascript" src="galleria/themes/classic/galleria.classic.min.js"></script>
+    <link rel="stylesheet" href="styles.css?1" />
+
+<!--
+    <link href="//netdna.bootstrapcdn.com/bootswatch/2.3.1/cosmo/bootstrap.min.css" rel="stylesheet">
+-->
+</head>
+<body>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="brand" href="#">The Classic Rock Getty Images </a>
+            <ul class="nav pull-right">
+              <li class="nav-choice"><a href="https://github.com/plamere/en-demos/blob/master/getty/">The Source</a></li>
+              <li class="nav-choice"><a href="http://static.echonest.com/labs">Labs</a></li>
+              <li class="nav-choice"><a href="http://static.echonest.com/labs/demo.html">Demos</a></li>
+              <li class="nav-choice"><a href="http://developer.echonest.com">developer.echonest.com</a></li>
+            </ul>
+        </div>
+      </div>
+    </div>
+
+  <div class="container">
+
+      <!-- Main hero unit for a primary marketing message or call to action -->
+      <div class="hero-unit">
+        <p>Getty Images of the top Classic Rock artists</p>
+        <div id="galleria"> </div>
+        <div>
+            <span id="title">  </span>
+            <span id="tags" class="pull-right">  </span>
+        </div>
+        <div>
+            <span id="attribution">  </span>
+            <span id="size" class="pull-right">  </span>
+        </div>
+      </div>
+
+
+      <hr>
+
+      <footer>
+        <p>Powered by <a href="http://www.gettyimages.com/">Getty</a> and <a href="http://the.echonest.com">The Echo Nest</a></p>
+      </footer>
+
+    </div> <!-- /container -->
+
+<script>
+
+var images = null;
+
+
+var curImage;
+$(document).ready(function() {
+    console.log('ready');
+    var gallery = $("#galleria");
+    $.getJSON("classic rock_images.js", function(data) {
+        var artists  = data;
+        images = data;
+        _.each(artists, function(artist, i) {
+            _.each(artist.images, function(image, i) {
+                var tags = image.tags.join(', ');
+                var img = $("<img>");
+                img.attr('src', image.url);
+                img.attr('data-title', "#" + (artist.rank +1) + " " + artist.name);
+                img.attr('data-tags', tags);
+                img.attr('data-attribution', image.license.attribution);
+                img.attr('data-size', image.width + 'x' + image.height + " pixels");
+                gallery.append(img);
+            });
+        });
+    });
+
+    Galleria.loadTheme('galleria/themes/classic/galleria.classic.min.js');
+    Galleria.run("#galleria", {
+        autoplay: true,
+        pauseOnInteraction: false,
+        showInfo:false,
+    });
+
+    Galleria.on('image', function(e) {
+        var current = this.getData(this.getIndex());
+        var currImg = current.original;
+        var title = $(currImg).attr('data-title'); 
+        var tags = $(currImg).attr('data-tags'); 
+        var attribution = $(currImg).attr('data-attribution'); 
+        var size = $(currImg).attr('data-size'); 
+        $("#title").text(title);
+        $("#tags").text(tags);
+        $("#attribution").text(attribution);
+        $("#size").text(size);
+    });
+});
+
+</script>
+</body> 
+</html>
