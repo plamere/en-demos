@@ -86,26 +86,25 @@ $(document).ready(function() {
                 gallery.append(img);
             });
         });
-    });
+        Galleria.loadTheme('galleria/themes/classic/galleria.classic.min.js');
+        Galleria.run("#galleria", {
+            autoplay: true,
+            pauseOnInteraction: false,
+            showInfo:false,
+        });
 
-    Galleria.loadTheme('galleria/themes/classic/galleria.classic.min.js');
-    Galleria.run("#galleria", {
-        autoplay: true,
-        pauseOnInteraction: false,
-        showInfo:false,
-    });
-
-    Galleria.on('image', function(e) {
-        var current = this.getData(this.getIndex());
-        var currImg = current.original;
-        var title = $(currImg).attr('data-title'); 
-        var tags = $(currImg).attr('data-tags'); 
-        var attribution = $(currImg).attr('data-attribution'); 
-        var size = $(currImg).attr('data-size'); 
-        $("#title").text(title);
-        $("#tags").text(tags);
-        $("#attribution").text(attribution);
-        $("#size").text(size);
+        Galleria.on('image', function(e) {
+            var current = this.getData(this.getIndex());
+            var currImg = current.original;
+            var title = $(currImg).attr('data-title'); 
+            var tags = $(currImg).attr('data-tags'); 
+            var attribution = $(currImg).attr('data-attribution'); 
+            var size = $(currImg).attr('data-size'); 
+            $("#title").text(title);
+            $("#tags").text(tags);
+            $("#attribution").text(attribution);
+            $("#size").text(size);
+        });
     });
 });
 
