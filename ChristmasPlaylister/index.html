@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Christmas Music</title>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
+    <link href="//netdna.bootstrapcdn.com/bootswatch/2.3.1/united/bootstrap.min.css" rel="stylesheet">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.2/underscore-min.js" type="text/javascript" charset="utf-8"></script>
+    <link href="styles.css" rel="stylesheet">
+    <script src="https://rdio.com/api/api.js?client_id=awi7FUS1ryToULkZKtbwlw"></script>
+
+    <script id="song-template" type="text/template">
+      <div class="adiv" style="background-image: url(<%= bigIcon %>)">
+          <div class="buttons">
+                <button title='Skip this song' class='btn btn-inverse bypass tooltips'>Bypass</button>
+                <img class='playbutton play' src='images/play.png'>
+                <img class='playbutton pause' src='images/pause.png'>
+          </div>          
+         <div class="song-info">
+            <div class="title album-label"><%= name %></div>
+            <div class="artist album-label"><%= artist %></div>
+         </div>
+      </div>
+    </script>
+  </head>
+
+<body>
+
+
+<div id='all'>
+ <div class="jumbotron">
+     <h1>Have a Very Nestive Christmas</h1>
+     <p class="lead">
+        Tired of hearing Bing Crosby every two minutes on the radio? <br>Give your ears a Christmas present and
+        pick one of these alternative Christmas styles.
+     </p>
+ </div>
+
+ <div id="all-info">
+    <div class="container">
+        <div  class="span12 ">
+            <div id="button-panel" class="btn-group"> </div>
+            <div>
+                <h1> <span class="gname"></span> </h1>
+                <div id="song-main">
+                    <div id='song-list'> </div>
+                    <br style="clear:left;"/>
+                </div>
+            </div>
+        </div>
+    </div>
+ </div>
+
+<div id='footer'>
+    <small>
+    Powered by <a href="http://echonest.com">The Echo Nest</a> and <a href="http://rdio.com">Rdio</a>. 
+    </small>
+</div>
+</div>
+
+
+<script type="text/javascript">
+
+jQuery.ajaxSettings.traditional = true; 
+var host = 'http://developer.echonest.com/api/v4/';
+var apiKey =  'TBBANYZHICTAFW2';
+var curSong = null;
+var songTemplate = _.template($("#song-template").text());
+var knownSongs = {};
+var genreList;
+var firstTime = true;
+
+function initUI() {
+}
+
+
+
+function songChanged(song) {
+    if (song) {
+        var el = song.adiv.find('.adiv');
+
+        var pause = el.find('.pause');
+        var play = el.find('.play');
+
+        if (song  === curSong) {
+            el.addClass('is-current');
+        } else {
+            el.removeClass('is-current');
+        }
+
+        if (song === curSong && R.player.playState() === R.player.PLAYSTATE_PLAYING) {
+            play.hide();
+            pause.show();
+        } else {
+            play.show();
+            pause.hide();
+        }
+    }
+}
+
+function getPlayer(song) {
+    var rdio = song.rdio;
+    var bigIcon = rdio.icon.replace('-200', '-400');
+    rdio.bigIcon = bigIcon;
+    var el = $(songTemplate(rdio))
+
+    var bypass = el.find('.bypass');
+    bypass.hide();
+
+    var buttons = el.find('.buttons');
+    buttons.hide();
+
+    var pause = el.find('.pause');
+    var play = el.find('.play');
+
+    play.click( function() {
+        playSong(song);
+    });
+
+    pause.click( function() {
+        playSong(song);
+    });
+
+    el.hover(
+        function() {
+            songChanged(song);
+            buttons.show();
+        },
+        function() {
+            buttons.hide();
+        }
+    );
+
+    el.find('.tooltips').tooltip({placement:'bottom', delay : 1500});
+    return el;
+}
+
+function fetchRdioTrackInfo(songs) {
+    var ids = [];
+
+    var list = $("#song-list");
+    list.empty();
+    _.each(songs, function(song) {
+        song.rdio_id = song.tracks[0].foreign_id.split(':')[2];
+        var adiv = $("<div>");
+        adiv.attr('class', 'tadiv');
+        song.adiv = adiv;
+        list.append(adiv);
+    });
+
+    _.each(songs, 
+        function(song) {
+            if (! (song.rdio_id in knownSongs)) {
+                knownSongs[song.rdio_id] = song;
+                ids.push(song.rdio_id);
+            } else {
+                song.rdio = knownSongs[song.rdio_id].rdio;
+            }
+        }
+    );
+
+    if (ids.length > 0) {
+        R.request( 
+        { 
+            method:"get", 
+            content: { 
+                keys: ids 
+            },
+
+            success: function(response) {
+                _.each(response.result, 
+                    function(t) { 
+                        if (t.key in knownSongs) {
+                            knownSongs[t.key]['rdio'] = t;
+                        } else {
+                            error("unexpected result " + t.key);
+                        }
+                    } 
+                );
+                showPlaylist(songs);
+            },
+
+            error: function(response) {
+                error("trouble getting rdio info");
+            }
+        });
+    } else {
+        showPlaylist(songs);
+    }
+}
+
+function playSong(song) {
+    if (song === curSong) {
+        R.player.togglePause();
+    } else {
+        var oldSong = curSong;
+        curSong = song;
+        var rdio = song.rdio;
+        songChanged(oldSong);
+        R.player.play({source: rdio.key});
+    }
+}
+
+function playFirst() {
+    if (curSongs.length > 0) {
+        playSong(curSongs[0]);
+    }
+}
+
+
+function playNext() {
+    if (curSong) {
+        if (curSong.which + 1 < curSongs.length) {
+            playSong(curSongs[curSong.which + 1]);
+        } else {
+            curSong = null;
+        }
+    } 
+}
+
+function showPlayer(song) {
+    var player = song.adiv;
+    player.html(getPlayer(song));
+}
+
+function showPlaylist(songs) {
+    _.each(songs, 
+        function(song, index, list) { 
+            showPlayer(song); 
+        }
+    );
+
+    if (firstTime) {
+        firstTime = false;
+    } else {
+        playFirst();
+    }
+}
+
+
+function loadGenre(genreName) {
+    $(".gname").text(genreName);
+    setURL(genreName);
+    loadTopSongs(genreName, 'core-best');
+}
+
+
+function songFilter(songs) {
+    var out = [];
+    _.each(songs, function(song) {
+        // wrong cinderalla
+        if (song.artist_id === 'ARGOXY21187FB37826') {
+            return;
+        }
+        out.push(song);
+    });
+
+    return out;
+}
+
+function loadTopSongs(genreName, preset) {
+    var url = host + 'playlist/static'
+    $.getJSON(url, {api_key:__(apiKey), bucket:['tracks', 'id:rdio-US'],    
+                    limit:true, type:"genre-radio", 
+                    results:39, 
+                    // genre_preset:preset,
+                    genre:genreName },
+        function(data) {
+            var songs = data.response.songs;
+            songs = songFilter(songs);
+            curSongs = songs;
+            _.each(songs, function(song, i) {
+                song.which = i;
+            });
+            fetchRdioTrackInfo(songs);
+        });
+}
+
+function urldecode(str) {
+   return decodeURIComponent((str+'').replace(/\+/g, '%20'));
+}
+
+function __(_) { return 'Y' + _ + 'P'; }
+
+function setURL(genre) {
+    var p = '?genre=' + genre;
+    history.replaceState({}, document.title, p);
+}
+
+
+function addButtons() {
+    var bp = $("#button-panel");
+    genreList.sort();
+    
+    _.each(genreList, function(genre, i) {
+        var gbutton = $("<button>");
+        var gtext = genre.replace('christmas', '');
+        gbutton.attr("class", "btn btn-default");
+
+        gbutton.addClass(i % 2 == 1 ? "btn-danger" : "btn-success");
+        if (gtext.length == 0) {
+            gtext = 'classic';
+        }
+        gbutton.text(gtext);
+        gbutton.click(function() {
+            loadGenre(genre);
+        });
+        bp.append(gbutton);
+    });
+}
+
+
+
+function loadGenreList() {
+    var url = 'genres.js';
+    $.getJSON(url, {},
+        function(data) {
+            genreList = data;
+            addButtons();
+            processParams();
+        });
+}
+
+function processParams() {
+    var params = {};
+    var q = document.URL.split('?')[1];
+    if(q != undefined){
+        q = q.split('&');
+        for(var i = 0; i < q.length; i++){
+            var pv = q[i].split('=');
+            var p = pv[0];
+            var v = pv[1];
+            params[p] = urldecode(v);
+        }
+    }
+
+    if ('genre' in params) {
+        var genre = params['genre'];
+        loadGenre(genre);
+    }  else {
+        loadGenre("christmas");
+    }
+}
+
+
+$(document).ready(function() {
+    $.ajaxSetup( {cache: false});
+
+    initUI();
+    R.ready(function() {
+        R.player.on("change:playingTrack", function(track) {
+            if (track === null) {
+                playNext();
+            }
+        });
+        
+        R.player.on("change:playState", function(state) {
+            songChanged(curSong);
+        });
+
+        R.player.on("change:playingSource", function(track) {
+            songChanged(curSong);
+        });
+
+        loadGenreList();
+    });
+});
+
+</script>
+</body>
+</html>
