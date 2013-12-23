@@ -70,22 +70,23 @@
     <div class="container">
         <div id="the-form" class="span10 well">
             <h1> Million Song Shuffle</h1>
-            <p class="lead"> What happens when you try to shuffle play millions of songs?</p>
-            <p>
-                Back in 2001, <a href="http://en.wikipedia.org/wiki/Shuffle_play">shuffle
-                play</a> was all the rage. You could pick songs at random
+            <p class="lead"> What happens when you try to Shuffle Play millions of songs?</p>
+            <div id='explain'>
+                <p>
+                Back in 2001, <a href="http://en.wikipedia.org/wiki/Shuffle_play">Shuffle
+                Play</a> was all the rage. You could pick songs at random
                 from your music collection and get a pretty good music listening experience.
-                Today, however, we have millions of songs in our music collection. Shuffle play
+                Today, however, we have millions of songs in our music collection. Shuffle Play
                 may not work so well. 
                 </p>
                 <p>
                 I wondered
-                what it would be like to shuffle play a multi-million song collection. 
+                what it would be like to Shuffle Play a multi-million song collection. 
                 This app is the result. Click <b>Shuffle Play</b> to hear what it is like to
-                shuffle-play millions of songs.
+                Shuffle Play millions of songs.
                 </p>
                 <br>
-            </p>
+            </div>
             <div>
                 <button class="btn btn-primary" id="go"> Shuffle Play </button>
                 <span id="info" class=""> </span>
@@ -293,6 +294,7 @@ function now() {
 }
 
 function go() {
+    $("#explain").hide(600);
     fetchNextTrack();
 }
 
