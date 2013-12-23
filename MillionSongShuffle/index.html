@@ -43,6 +43,11 @@
             margin-left:20px;
         }
 
+        .comment {
+            font-weight:bold;
+            color:green;
+        }
+
 
     </style>
   </head>
@@ -104,6 +109,12 @@
         <h4  id='rp-artist-name'></h4> 
         <div> Artist rank: <span  id='rp-artist-rank'></span>  </div>
         <div> Song rank: <span  id='rp-song-rank'></span>  </div>
+        <br>
+        <div> Rdio artist plays: <span  id='rp-artist-plays'></span>  <span class="comment" id='rp-artist-comment'></span>
+       </div>
+        <div> Rdio song plays: <span id='rp-song-plays'></span>  <span class="comment" id='rp-song-comment'></span>
+        </div>
+
         <div id='bottom-buttons'>
               <div id='button-panel' class='btn-group'>
                   <button id='rp-pause-play' rel='tooltip' title='play/pause the song'
@@ -164,10 +175,17 @@ function getRdioID(song) {
 
 function playSong(song, artist) {
     var rdioID = getRdioID(song);
+
+    $("#rp-song-comment").empty();
+    $("#rp-artist-comment").empty();
+
     curSong = song;
     R.player.play({
         source: rdioID
     });
+
+    getExtraRdioTrackInfo(rdioID);
+    
     $("#rp-song-title").text(song.title);
     $("#rp-artist-name").text(song.artist_name);
 
@@ -214,13 +232,10 @@ function fetchNextTrack() {
     $.getJSON(url, args,
         function(data) {
             $("#the-player").show();
-            console.log('fnt', data);
             if (data.response.songs.length == 0) {
-                console.log('no songs for artist, skipping');
                 fetchNextTrack();
             } else {
                 var song = pickRandomFromList(data.response.songs);
-                console.log('hot', song.artist_hotttnessss_rank, song.song_hotttnesss_rank);
                 playSong(song, nextArtist);
             }
         },
@@ -274,10 +289,8 @@ function fetchArtists() {
     var url = 'artists.js';
     info("Fetching the artist list");
 
-    console.log('getting artists');
     $.getJSON(url, {},
         function(data) {
-            console.log('got all artists', data);
             allArtists = data['artist'];
             $("#go").prop("disabled",false);
             info("");
@@ -307,6 +320,50 @@ function initUI() {
             }
         });
     $("#go").click(go);
+}
+
+function getExtraRdioTrackInfo(trid) {
+    R.request( {
+        method: "get",
+        content: {
+            keys:trid,
+            extras:"playCount"
+        },
+        success: function(response) {
+            var rdio_track = response.result[trid];
+            var pc = rdio_track.playCount;
+            $("#rp-song-plays").text(numberWithCommas(pc));
+            if (pc == 0) {
+                $("#rp-song-comment").text("First play!");
+            } else if (pc < 10) {
+                $("#rp-song-comment").text("Rare play!");
+            }
+            getExtraRdioArtistInfo(rdio_track.artistKey);
+        },
+        error: function(response) {
+        }
+    });
+}
+
+function getExtraRdioArtistInfo(aid) {
+    R.request( {
+        method: "get",
+        content: {
+            keys:aid,
+            extras:"playCount"
+        },
+        success: function(response) {
+            var pc = response.result[aid].playCount
+            $("#rp-artist-plays").text(numberWithCommas(pc));
+            if (pc == 0) {
+                $("#rp-artist-comment").text("First play!");
+            } else if (pc < 10) {
+                $("#rp-artist-comment").text("Rare play!");
+            }
+        },
+        error: function(response) {
+        }
+    });
 }
 
 $(document).ready(function() {
@@ -349,7 +406,6 @@ $(document).ready(function() {
             playNextSong();
         });
 
-        console.log('rdio ready');
         fetchArtists();
     });
 });
