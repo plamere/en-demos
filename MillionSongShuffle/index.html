@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Million Song Shuffle </title>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
+    <link href="//netdna.bootstrapcdn.com/bootswatch/2.3.1/spacelab/bootstrap.min.css" rel="stylesheet">
+    <script src="https://rdio.com/api/api.js?client_id=Umzcw0LEWMHqL6w0yYVVMg"></script>
+    <style>
+        #go {
+            margin-top:-8px;
+            margin-right: 20px;
+        }
+
+        #bottom-buttons {
+            position: relative;
+            margin-top:40px;
+        }
+
+        #titles {
+            margin-bottom:10px;
+            height:300px;
+        }
+
+        #more-info {
+            margin-left:60px;
+        }
+
+        #rp-album-art {
+            height:300px;
+            margin-right:40px;
+        }
+
+        #rp-song-title {
+            margin-left:20px;
+        }
+
+        #rp-artist-name {
+            margin-top:40px;
+        }
+
+        #footer {
+            margin-left:20px;
+        }
+
+
+    </style>
+  </head>
+
+<body>
+
+<div id="wrap" class="navbar navbar-inverse">
+  <div class="navbar-inner">
+    <div class="container">
+        <a id='show-search' class="brand">Million Song Shuffle</a>
+        <ul class="nav">
+          <li class="nav-choice active"><a id='show-main'>Main</a></li>
+        </ul>
+        <ul class="nav pull-right">
+          <li class="nav-choice"><a
+          href="https://github.com/plamere/en-demos/blob/master/MillionSongShuffle/">The Source</a></li>
+          <li class="nav-choice"><a href="http://static.echonest.com/labs">Labs</a></li>
+          <li class="nav-choice"><a href="http://static.echonest.com/labs/demo.html">Demos</a></li>
+          <li class="nav-choice"><a href="http://developer.echonest.com">developer.echonest.com</a></li>
+        </ul>
+    </div>
+  </div>
+</div>
+
+    <div class="container">
+        <div id="the-form" class="span10 well">
+            <h1> Million Song Shuffle</h1>
+            <p class="lead"> What happens when you try to shuffle play millions of songs?</p>
+            <p>
+                Back in 2001, <a href="http://en.wikipedia.org/wiki/Shuffle_play">shuffle
+                play</a> was all the rage. You could pick songs at random
+                from your music collection and get a pretty good music listening experience.
+                Today, however, we have millions of songs in our music collection. Shuffle play
+                may not work so well. 
+                </p>
+                <p>
+                I wondered
+                what it would be like to shuffle play a multi-million song collection. 
+                This app is the result. Click <b>Shuffle Play</b> to hear what it is like to
+                shuffle-play millions of songs.
+                </p>
+                <br>
+            </p>
+            <div>
+                <button class="btn btn-primary" id="go"> Shuffle Play </button>
+                <span id="info" class=""> </span>
+            </div>
+        </div>
+
+
+    <div id="the-player" class="row span10 well">
+      <h3 id='rp-song-title'></h3> 
+      <div id="rp-now-playing" class="span4 ">
+        <img id="rp-album-art">
+      </div>
+    <div id="more-info" class="span
+      <div id="titles">
+        <h4  id='rp-artist-name'></h4> 
+        <div> Artist rank: <span  id='rp-artist-rank'></span>  </div>
+        <div> Song rank: <span  id='rp-song-rank'></span>  </div>
+        <div id='bottom-buttons'>
+              <div id='button-panel' class='btn-group'>
+                  <button id='rp-pause-play' rel='tooltip' title='play/pause the song'
+                    class="btn btn-primary btn"><i class="icon-white icon-play"></i></button>
+                  <button id='rp-next' rel='tooltip' title='go to the next song', 
+                    class="btn btn-primary btn"><i class="icon-white icon-forward"></i></button>
+              </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div  id="footer">
+    <small>
+    Powered by <a href="http://echonest.com">The Echo Nest</a> and <a href="http://rdio.com">Rdio</a>. 
+    </small>
+  </div>
+
+
+<script type="text/javascript">
+
+jQuery.ajaxSettings.traditional = true; 
+var apiKey =  'TBBANYZHICTAFW2';
+var curSong = null;
+var allArtists;
+
+
+function info(s) {
+    $("#info").removeClass();
+    if (s.length > 0) {
+        // $("#info").addClass("alert alert-info");
+    }
+    $("#info").text(s);
+}
+
+function tinfo(s) {
+    info(s);
+    setTimeout( function() { info(""); }, 5000);
+}
+
+function error(s) {
+    $("#info").removeClass();
+    if (s.length > 0) {
+        $("#info").addClass("alert alert-error");
+    }
+    $("#info").text(s);
+}
+
+function terror(s) {
+    error(s);
+    setTimeout( function() { error(""); }, 5000);
+}
+
+function getRdioID(song) {
+    var id = song.tracks[0].foreign_id;
+    var rawID = id.split(':')[2]
+    return rawID;
+}
+
+function playSong(song, artist) {
+    var rdioID = getRdioID(song);
+    curSong = song;
+    R.player.play({
+        source: rdioID
+    });
+    $("#rp-song-title").text(song.title);
+    $("#rp-artist-name").text(song.artist_name);
+
+    if ('song_hotttnesss_rank' in song) {
+        $("#rp-song-rank").text(numberWithCommas(song.song_hotttnesss_rank));
+    } else {
+        $("#rp-song-rank").text('way deep');
+    }
+
+    if ('artist_hotttnesss_rank' in song) {
+        $("#rp-artist-rank").text(numberWithCommas(song.artist_hotttnesss_rank));
+    } else {
+        $("#rp-artist-rank").text('way deep');
+    }
+    // $("#rp-artist-rank").text(artist.rank);
+    document.title = song.artist_name;
+}
+
+function playNextSong() {
+    fetchNextTrack();
+}
+
+function numberWithCommas(x) {
+    // http://stackoverflow.com/questions/2901102/how-to-print-a-number-with-commas-as-thousands-separators-in-javascript
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+function __(_) { return 'Y' + _ + 'P'; }
+
+
+function fetchNextTrack() {
+    var url = 'http://developer.echonest.com/api/v4/playlist/static';
+
+    var nextArtist = pickRandomArtist();
+    var args = { 
+        api_key : __(apiKey),
+        artist_id : nextArtist.artist,
+        type: 'artist',
+        results: 15,
+        bucket:['id:rdio-US', 'tracks', 'artist_hotttnesss_rank', 'song_hotttnesss_rank'],
+        limit:true
+    };
+
+    $.getJSON(url, args,
+        function(data) {
+            $("#the-player").show();
+            console.log('fnt', data);
+            if (data.response.songs.length == 0) {
+                console.log('no songs for artist, skipping');
+                fetchNextTrack();
+            } else {
+                var song = pickRandomFromList(data.response.songs);
+                console.log('hot', song.artist_hotttnessss_rank, song.song_hotttnesss_rank);
+                playSong(song, nextArtist);
+            }
+        },
+        function() {
+            error("Trouble creating playlist session for " + artist);
+        }
+    );
+}
+
+function pickRandomArtist() {
+    var idx = Math.floor(Math.random() * allArtists.length);
+    var artist = allArtists[idx];
+    return { 'artist' : artist, 'rank': idx }
+}
+
+function pickRandomFromList(list) {
+    var idx = Math.floor(Math.random() * list.length);
+    return list[idx];
+}
+
+function fetchUpNext() {
+    var url = 'http://developer.echonest.com/api/v4/playlist/dynamic/next';
+
+    var args = { 
+        api_key : __(apiKey),
+        session_id : session_id,
+        results: 0,
+        lookahead: 5,
+    };
+
+    $.getJSON(url, args,
+        function(data) {
+            $("#up-next").empty();
+            var names = [];
+
+            $.each(data.response.lookahead, 
+                function(index, song) {
+                    names.push(song.artist_name);
+                }
+            );
+            var all = names.join(', ');
+            $("#up-next").append(all);
+        },
+        function() {
+            error("Trouble getting next artists in the playlist");
+        }
+    );
+}
+
+function fetchArtists() {
+    var url = 'artists.js';
+    info("Fetching the artist list");
+
+    console.log('getting artists');
+    $.getJSON(url, {},
+        function(data) {
+            console.log('got all artists', data);
+            allArtists = data['artist'];
+            $("#go").prop("disabled",false);
+            info("");
+        },
+        function() {
+            error("Trouble getting the artist list");
+        }
+    );
+}
+
+
+function now() {
+    return new Date().getTime();
+}
+
+function go() {
+    fetchNextTrack();
+}
+
+function initUI() {
+    $("#the-player").hide();
+    $("#artist").keydown(
+        function(){
+            if (event.keyCode == 13) {
+                go();
+            }
+        });
+    $("#go").click(go);
+}
+
+$(document).ready(function() {
+
+    $("#go").prop("disabled",true);
+
+    var trackStartTime = now();
+
+    $.ajaxSetup( {cache: false});
+    initUI();
+    R.ready(function() {
+        R.player.on("change:playingTrack", function(track) {
+            if (track) {
+                var image = track.attributes.icon;
+                $("#rp-album-art").attr('src', image);
+                trackStartTime = now();
+            } else {
+                playNextSong();
+            }
+        });
+
+        R.player.on("change:playState", function(state) {
+            if (state == R.player.PLAYSTATE_PAUSED) {
+                $("#rp-pause-play i").removeClass("icon-pause");
+                $("#rp-pause-play i").addClass("icon-play");
+            }
+            if (state == R.player.PLAYSTATE_PLAYING) {
+                $("#rp-pause-play i").removeClass("icon-play");
+                $("#rp-pause-play i").addClass("icon-pause");
+            }
+        });
+
+        R.player.on("change:playingSource", function(track) {});
+
+        $("#rp-pause-play").click(function() {
+            R.player.togglePause();
+        });
+
+        $("#rp-next").click(function() {
+            playNextSong();
+        });
+
+        console.log('rdio ready');
+        fetchArtists();
+    });
+});
+
+</script>
+</body>
+</html>
