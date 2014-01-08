@@ -123,6 +123,11 @@ function getBestBio(bios) {
         for (var i = 0; i < bios.length; i++) {
             if (bios[i].site == 'last.fm') {
                 best = bios[i];
+                break;
+            }
+            if (bios[i].site == 'wikipedia') {
+                best = bios[i];
+                break;
             }
         }
     }

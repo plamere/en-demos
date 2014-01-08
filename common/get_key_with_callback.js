@@ -21,8 +21,7 @@ function fetchApiKeyV1(callback) {
 
 
 function fetchApiKey(callback) {
-    // here's a little note to that special someone who keeps trying to crawl
-    // our data with our demo API key:'fuck you'
+    var spareKey = 'FEQK8YEAC4WDXAWSP';
     $.ajax( {
             type:"GET", 
             dataType: "json", 
@@ -31,12 +30,16 @@ function fetchApiKey(callback) {
         }).then(
             function(data){
                 if (callback) {
-                    callback(data.api_key, data.logged_in);
+                    if (data.logged_in) {
+                        callback(data.api_key, data.logged_in);
+                    } else {
+                        callback(spareKey, data.logged_in);
+                    }
                 }
             }, 
             function(data){
                 if (callback) {
-                    callback(null, false);
+                    callback(spareKey, false);
                 }
             }
         );

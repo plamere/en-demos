@@ -474,7 +474,7 @@ function summarizeGenres() {
 }
 
 function fetchMoreFromTasteProfile(id, start) {
-    var pageSize = 100;
+    var pageSize = 1000;
     var maxItems = 100000;
     info("Getting TP info ...");
     en.catalog.read(id, start, pageSize, ['genre'],
