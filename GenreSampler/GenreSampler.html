@@ -330,6 +330,7 @@ function fetchGenrePlaylist(genre,  wandering, variety) {
             'bucket': [ 'id:rdio-US', 'tracks'], 'limit' : true,
             'variety' : variety, 
             'dmca' : true,
+            'genre_preset' : 'core-best',
             'results': 64, 'type':'genre-radio',  }, 
 
             function(data) {
@@ -349,8 +350,28 @@ function fetchGenrePlaylist(genre,  wandering, variety) {
             } );
 }
 
-function fetchGenres() {
+function fetchGenresOld() {
     var url = host + 'api/v4/artist/list_genres?api_key=' + apiKey;
+    $.getJSON(url, { 'format':'json'}, 
+            function(data) {
+                var genres = data.response.genres;
+                var glist = $('#genre');
+
+                allGenres = genres;
+
+                for (var i = 0, max = genres.length; i < max; i++) {
+                    var genre = genres[i].name;
+                    var opt = $("<option>").attr('value', genre).text(genre);
+                    glist.append(opt);
+                }
+                $(".chzn-select").chosen().change(function() {
+                    newGenre();
+                });
+            });
+}
+
+function fetchGenres() {
+    var url = host + 'api/v4/genre/list?api_key=' + apiKey;
     $.getJSON(url, { 'format':'json'}, 
             function(data) {
                 var genres = data.response.genres;
