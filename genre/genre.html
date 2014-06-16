@@ -56,7 +56,7 @@ function fetchGenrePlaylist(genre,  wandering, variety) {
     info("Creating the playlist ...");
 
     $.getJSON(url, { 'genre': genre, 'format':'json', 
-            'bucket': [ 'id:spotify-WW', 'tracks'], 'limit' : true,
+            'bucket': [ 'id:spotify', 'tracks'], 'limit' : true,
             'variety' : variety, 
             'dmca' : true,
             'results': 12, 'type':'genre-radio',  }, 
@@ -73,7 +73,7 @@ function fetchGenrePlaylist(genre,  wandering, variety) {
                     var tracks = "";
                     for (var i = 0; i < data.response.songs.length; i++) {
                         var song = data.response.songs[i];
-                        var tid = song.tracks[0].foreign_id.replace('spotify-WW:track:', '');
+                        var tid = song.tracks[0].foreign_id.replace('spotify:track:', '');
                         tracks = tracks + tid + ',';
                     }
                     var tembed = embed.replace('TRACKS', tracks);

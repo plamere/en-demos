@@ -53,7 +53,7 @@ function fetchArtistPlaylist(artist,  wandering, variety) {
     $("#all_results").hide();
     info("Creating the playlist ...");
     $.getJSON(url, { 'artist': artist, 'format':'jsonp', 
-            'bucket': [ 'id:spotify-WW', 'tracks'], 'limit' : true,
+            'bucket': [ 'id:spotify', 'tracks'], 'limit' : true,
             'song_type': 'christmas',
             'variety' : 1,
             'results': 12, 'type':'artist-radio',  }, 
@@ -67,7 +67,7 @@ function fetchArtistPlaylist(artist,  wandering, variety) {
                     var tracks = "";
                     for (var i = 0; i < data.response.songs.length; i++) {
                         var song = data.response.songs[i];
-                        var tid = song.tracks[0].foreign_id.replace('spotify-WW:track:', '');
+                        var tid = song.tracks[0].foreign_id.replace('spotify:track:', '');
                         tracks = tracks + tid + ',';
                     }
                     var tembed = embed.replace('TRACKS', tracks);

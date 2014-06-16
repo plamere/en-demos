@@ -50,7 +50,7 @@ function fetchComedyPlaylist() {
     $("#all_results").hide();
     var args = { 
             'format':'json', 
-            'bucket': [ 'id:spotify-WW', 'tracks'], 
+            'bucket': [ 'id:spotify', 'tracks'], 
             'limit' : true,
             'api_key': apiKey,
             'type' : 'artist-description',
@@ -71,7 +71,7 @@ function fetchComedyPlaylist() {
                     var tracks = "";
                     for (var i = 0; i < data.response.songs.length; i++) {
                         var song = data.response.songs[i];
-                        var tid = song.tracks[0].foreign_id.replace('spotify-WW:track:', '');
+                        var tid = song.tracks[0].foreign_id.replace('spotify:track:', '');
                         tracks = tracks + tid + ',';
                     }
                     var tembed = embed.replace('TRACKS', tracks);
