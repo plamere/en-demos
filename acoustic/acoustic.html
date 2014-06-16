@@ -71,7 +71,7 @@ function fetchAcousticPlaylist() {
     var args_using_params = { 
             'artist': artist,
             'format':'json', 
-            'bucket': [ 'id:spotify-US', 'tracks', 'audio_summary'], 
+            'bucket': [ 'id:spotify', 'tracks', 'audio_summary'], 
             'limit' : true,
             'api_key': apiKey,
             'type' : 'artist-radio',
@@ -83,7 +83,7 @@ function fetchAcousticPlaylist() {
     var args_using_song_type  = { 
             'artist': artist,
             'format':'json', 
-            'bucket': [ 'id:spotify-US', 'tracks', 'audio_summary'], 
+            'bucket': [ 'id:spotify', 'tracks', 'audio_summary'], 
             'limit' : true,
             'api_key': apiKey,
             'type' : 'artist-radio',
@@ -113,8 +113,7 @@ function fetchAcousticPlaylist() {
                         var row = $("<tr>");
                         var artist = make_link(song.artist_name, 
                                 'http://static.echonest.com/echotron/?id=' + song.artist_id, 'other');
-                        var tid = song.tracks[0].foreign_id.replace('-WW', '');
-                        var tid = tid.replace('-US', '');
+                        var tid = song.tracks[0].foreign_id;
                         var title = make_link(song.title, tid);
 
                         var nacousticness = Math.round(song.audio_summary.acousticness * 10000) / 10000;
